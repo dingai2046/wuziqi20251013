@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>五子棋测试 - 胜利判定</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a1a;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        canvas {
+            border: 2px solid #666;
+            background: #2a2a2a;
+            cursor: crosshair;
+        }
+        .info {
+            margin: 20px 0;
+            font-size: 18px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>五子棋胜利判定测试</h1>
+    <div class="info">
+        <div>当前玩家: <span id="current-player">黑棋 (1)</span></div>
+        <div>游戏状态: <span id="game-status">进行中</span></div>
+    </div>
+    <canvas id="game-board" width="600" height="600"></canvas>
+    <br>
+    <button onclick="restartGame()">重新开始</button>
+    <button onclick="testWin()">测试五连</button>
+
+    <script>
+        class SimpleGomoku {
+            constructor() {
+                this.boardSize = 15;
+                this.cellSize = 40;
+                this.board = [];
+                this.currentPlayer = 1;
+                this.gameOver = false;
+                
+                this.initializeBoard();
+                this.setupCanvas();
+                this.updateDisplay();
+            }
+
+            initializeBoard() {
+                this.board = [];
+                for (let i = 0; i < this.boardSize; i++) {
+                    this.board[i] = [];
+                    for (let j = 0; j < this.boardSize; j++) {
+                        this.board[i][j] = 0;
+                    }
+                }
+                this.gameOver = false;
+                this.currentPlayer = 1;
+            }
+
+            setupCanvas() {
+                this.canvas = document.getElementById('game-board');
+                this.ctx = this.canvas.getContext('2d');
+                this.canvas.width = this.boardSize * this.cellSize;
+                this.canvas.height = this.boardSize * this.cellSize;
+                this.drawBoard();
+                
+                this.canvas.addEventListener('click', (event) => {
+                    const rect = this.canvas.getBoundingClientRect();
+                    const x = event.clientX - rect.left;
+                    const y = event.clientY - rect.top;
+                    
+                    const col = Math.round(x / this.cellSize);
+                    const row = Math.round(y / this.cellSize);
+                    
+                    if (row >= 0 && row < this.boardSize && col >= 0 && col < this.boardSize) {
+                        this.makeMove(row, col);
+                    }
+                });
+            }
+
+            drawBoard() {
+                const ctx = this.ctx;
+                ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // 绘制背景
+                ctx.fillStyle = '#2a2a2a';
+                ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // 绘制网格线
+                ctx.strokeStyle = '#666';
+                ctx.lineWidth = 1;
+                
+                for (let i = 0; i <= this.boardSize; i++) {
+                    const pos = i * this.cellSize;
+                    ctx.beginPath();
+                    ctx.moveTo(pos, 0);
+                    ctx.lineTo(pos, this.canvas.height);
+                    ctx.stroke();
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(0, pos);
+                    ctx.lineTo(this.canvas.width, pos);
+                    ctx.stroke();
+                }
+                
+                // 绘制棋子
+                for (let row = 0; row < this.boardSize; row++) {
+                    for (let col = 0; col < this.boardSize; col++) {
+                        if (this.board[row][col] !== 0) {
+                            this.drawPiece(row, col, this.board[row][col]);
+                        }
+                    }
+                }
+            }
+
+            drawPiece(row, col, player) {
+                const ctx = this.ctx;
+                const x = col * this.cellSize;
+                const y = row * this.cellSize;
+                const radius = this.cellSize * 0.4;
+                
+                ctx.fillStyle = player === 1 ? '#000' : '#fff';
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                ctx.strokeStyle = player === 1 ? '#fff' : '#000';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+
+            makeMove(row, col) {
+                if (this.gameOver || this.board[row][col] !== 0) {
+                    return;
+                }
+                
+                console.log(`玩家 ${this.currentPlayer} 下棋到 (${row}, ${col})`);
+                
+                this.board[row][col] = this.currentPlayer;
+                
+                if (this.checkWin(row, col)) {
+                    this.gameOver = true;
+                    alert(`玩家 ${this.currentPlayer === 1 ? '黑棋' : '白棋'} 获胜！`);
+                    this.updateDisplay();
+                    this.drawBoard();
+                    return;
+                }
+                
+                this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
+                this.updateDisplay();
+                this.drawBoard();
+            }
+
+            checkWin(row, col) {
+                const player = this.board[row][col];
+                const directions = [[0, 1], [1, 0], [1, 1], [1, -1]];
+                
+                for (let [dx, dy] of directions) {
+                    let count = 1;
+                    count += this.countDirection(row, col, dx, dy, player);
+                    count += this.countDirection(row, col, -dx, -dy, player);
+                    
+                    console.log(`方向 [${dx}, ${dy}]: 连续 ${count} 个棋子`);
+                    
+                    if (count >= 5) {
+                        console.log(`胜利！玩家 ${player} 形成 ${count} 连珠`);
+                        return true;
+                    }
+                }
+                
+                return false;
+            }
+
+            countDirection(row, col, dx, dy, player) {
+                let count = 0;
+                let r = row + dx;
+                let c = col + dy;
+                
+                while (r >= 0 && r < this.boardSize && 
+                       c >= 0 && c < this.boardSize && 
+                       this.board[r][c] === player) {
+                    count++;
+                    r += dx;
+                    c += dy;
+                }
+                
+                return count;
+            }
+
+            updateDisplay() {
+                document.getElementById('current-player').textContent = 
+                    this.currentPlayer === 1 ? '黑棋 (1)' : '白棋 (2)';
+                document.getElementById('game-status').textContent = 
+                    this.gameOver ? '游戏结束' : '进行中';
+            }
+
+            testWin() {
+                console.log('开始测试五连...');
+                
+                // 在棋盘中央创建一个水平五连
+                const center = Math.floor(this.boardSize / 2);
+                for (let i = 0; i < 5; i++) {
+                    this.board[center][center - 2 + i] = 1;
+                }
+                
+                // 检查是否获胜
+                const isWin = this.checkWin(center, center);
+                console.log(`测试结果: ${isWin ? '通过' : '失败'}`);
+                
+                this.drawBoard();
+                this.updateDisplay();
+            }
+        }
+
+        let game;
+
+        function restartGame() {
+            game = new SimpleGomoku();
+        }
+
+        function testWin() {
+            if (game) {
+                game.testWin();
+            }
+        }
+
+        // 初始化游戏
+        window.onload = function() {
+            game = new SimpleGomoku();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>五子棋棋盘测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a1a;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            display: inline-block;
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #444;
+        }
+        canvas {
+            border: 2px solid #666;
+            background: #1a1a1a;
+            cursor: crosshair;
+            display: block;
+        }
+        .info {
+            margin: 20px 0;
+            font-size: 18px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>五子棋棋盘测试</h1>
+        <div class="info">
+            <div>当前玩家: <span id="current-player">黑棋 (1)</span></div>
+            <div>游戏状态: <span id="game-status">进行中</span></div>
+        </div>
+        <canvas id="game-board" width="600" height="600"></canvas>
+        <br>
+        <button onclick="restartGame()">重新开始</button>
+        <button onclick="testDraw()">测试绘制</button>
+        <div id="debug-info"></div>
+    </div>
+
+    <script>
+        let game = null;
+
+        class TestGomoku {
+            constructor() {
+                this.boardSize = 15;
+                this.cellSize = 40;
+                this.board = [];
+                this.currentPlayer = 1;
+                this.gameOver = false;
+                
+                console.log('初始化游戏...');
+                this.initializeBoard();
+                this.setupCanvas();
+                this.updateDisplay();
+                console.log('游戏初始化完成');
+            }
+
+            initializeBoard() {
+                this.board = [];
+                for (let i = 0; i < this.boardSize; i++) {
+                    this.board[i] = [];
+                    for (let j = 0; j < this.boardSize; j++) {
+                        this.board[i][j] = 0;
+                    }
+                }
+                this.gameOver = false;
+                this.currentPlayer = 1;
+                console.log('棋盘初始化完成');
+            }
+
+            setupCanvas() {
+                this.canvas = document.getElementById('game-board');
+                if (!this.canvas) {
+                    console.error('找不到canvas元素！');
+                    return;
+                }
+                
+                this.ctx = this.canvas.getContext('2d');
+                if (!this.ctx) {
+                    console.error('无法获取2D上下文！');
+                    return;
+                }
+                
+                this.canvas.width = this.boardSize * this.cellSize;
+                this.canvas.height = this.boardSize * this.cellSize;
+                console.log(`Canvas尺寸设置为: ${this.canvas.width}x${this.canvas.height}`);
+                
+                this.drawBoard();
+                this.setupEventListeners();
+            }
+
+            drawBoard() {
+                console.log('开始绘制棋盘...');
+                const ctx = this.ctx;
+                ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // 背景
+                ctx.fillStyle = '#1a1a1a';
+                ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // 网格线
+                ctx.strokeStyle = '#666';
+                ctx.lineWidth = 1;
+                
+                for (let i = 0; i <= this.boardSize; i++) {
+                    const pos = i * this.cellSize;
+                    ctx.beginPath();
+                    ctx.moveTo(pos, 0);
+                    ctx.lineTo(pos, this.canvas.height);
+                    ctx.stroke();
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(0, pos);
+                    ctx.lineTo(this.canvas.width, pos);
+                    ctx.stroke();
+                }
+                
+                // 天元和星位
+                const starPoints = [[3, 3], [3, 11], [7, 7], [11, 3], [11, 11]];
+                ctx.fillStyle = '#666';
+                starPoints.forEach(([row, col]) => {
+                    const x = col * this.cellSize;
+                    const y = row * this.cellSize;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 4, 0, 2 * Math.PI);
+                    ctx.fill();
+                });
+                
+                // 绘制棋子
+                for (let row = 0; row < this.boardSize; row++) {
+                    for (let col = 0; col < this.boardSize; col++) {
+                        if (this.board[row][col] !== 0) {
+                            this.drawPiece(row, col, this.board[row][col]);
+                        }
+                    }
+                }
+                console.log('棋盘绘制完成');
+            }
+
+            drawPiece(row, col, player) {
+                const ctx = this.ctx;
+                const x = col * this.cellSize;
+                const y = row * this.cellSize;
+                const radius = this.cellSize * 0.4;
+                
+                ctx.fillStyle = player === 1 ? '#000' : '#fff';
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                ctx.strokeStyle = player === 1 ? '#fff' : '#000';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+
+            makeMove(row, col) {
+                if (this.gameOver || this.board[row][col] !== 0) {
+                    return;
+                }
+                
+                console.log(`玩家 ${this.currentPlayer} 下棋到 (${row}, ${col})`);
+                
+                this.board[row][col] = this.currentPlayer;
+                
+                if (this.checkWin(row, col)) {
+                    this.gameOver = true;
+                    alert(`玩家 ${this.currentPlayer === 1 ? '黑棋' : '白棋'} 获胜！`);
+                    this.updateDisplay();
+                    this.drawBoard();
+                    return;
+                }
+                
+                this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
+                this.updateDisplay();
+                this.drawBoard();
+            }
+
+            checkWin(row, col) {
+                const player = this.board[row][col];
+                const directions = [[0, 1], [1, 0], [1, 1], [1, -1]];
+                
+                for (let [dx, dy] of directions) {
+                    let count = 1;
+                    count += this.countDirection(row, col, dx, dy, player);
+                    count += this.countDirection(row, col, -dx, -dy, player);
+                    
+                    if (count >= 5) {
+                        console.log(`胜利！玩家 ${player} 形成 ${count} 连珠`);
+                        return true;
+                    }
+                }
+                
+                return false;
+            }
+
+            countDirection(row, col, dx, dy, player) {
+                let count = 0;
+                let r = row + dx;
+                let c = col + dy;
+                
+                while (r >= 0 && r < this.boardSize && 
+                       c >= 0 && c < this.boardSize && 
+                       this.board[r][c] === player) {
+                    count++;
+                    r += dx;
+                    c += dy;
+                }
+                
+                return count;
+            }
+
+            updateDisplay() {
+                document.getElementById('current-player').textContent = 
+                    this.currentPlayer === 1 ? '黑棋 (1)' : '白棋 (2)';
+                document.getElementById('game-status').textContent = 
+                    this.gameOver ? '游戏结束' : '进行中';
+            }
+
+            setupEventListeners() {
+                this.canvas.addEventListener('click', (event) => {
+                    const rect = this.canvas.getBoundingClientRect();
+                    const x = event.clientX - rect.left;
+                    const y = event.clientY - rect.top;
+                    
+                    const col = Math.round(x / this.cellSize);
+                    const row = Math.round(y / this.cellSize);
+                    
+                    console.log(`点击位置: (${x}, ${y}) -> 棋盘坐标: (${row}, ${col})`);
+                    
+                    if (row >= 0 && row < this.boardSize && col >= 0 && col < this.boardSize) {
+                        this.makeMove(row, col);
+                    }
+                });
+            }
+
+            testDraw() {
+                console.log('测试绘制...');
+                this.drawBoard();
+                
+                // 在中心放置一个测试棋子
+                const center = Math.floor(this.boardSize / 2);
+                this.board[center][center] = 1;
+                this.drawBoard();
+                
+                document.getElementById('debug-info').innerHTML = 
+                    `<p>测试棋子已放置在中心位置 (${center}, ${center})</p>`;
+            }
+        }
+
+        function restartGame() {
+            game = new TestGomoku();
+            document.getElementById('debug-info').innerHTML = '<p>游戏已重新开始</p>';
+        }
+
+        function testDraw() {
+            if (game) {
+                game.testDraw();
+            }
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener('load', function() {
+            console.log('页面加载完成，开始初始化游戏...');
+            try {
+                game = new TestGomoku();
+                console.log('游戏初始化成功');
+            } catch (error) {
+                console.error('游戏初始化失败:', error);
+                document.getElementById('debug-info').innerHTML = 
+                    `<p style="color: red;">错误: ${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>

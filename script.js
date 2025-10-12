@@ -7,6 +7,8 @@ class GomokuGame {
         this.currentPlayer = 1; // 1为黑棋，2为白棋
         this.gameOver = false;
         this.moveHistory = []; // 下棋历史，用于悔棋
+        this.aiMode = false; // AI模式开关
+        this.aiPlayer = 2; // AI玩家（白棋）
         this.stats = {
             blackWins: 0,
             whiteWins: 0,
@@ -164,8 +166,11 @@ class GomokuGame {
     // 下棋
     makeMove(row, col) {
         if (this.gameOver || this.board[row][col] !== 0) {
+            console.log(`无效移动：游戏结束=${this.gameOver}, 位置已有棋子=${this.board[row][col] !== 0}`);
             return false;
         }
+        
+        console.log(`玩家 ${this.currentPlayer} 下棋到位置 (${row}, ${col})`);
         
         // 记录移动历史
         this.moveHistory.push({ row, col, player: this.currentPlayer });
@@ -174,7 +179,7 @@ class GomokuGame {
         this.board[row][col] = this.currentPlayer;
         
         // 检查游戏是否结束
-        if (this.checkWin(row, col)) {
+        if (this.checkWin(row, col, this.currentPlayer)) {
             this.gameOver = true;
             this.handleWin();
             return true;
@@ -190,11 +195,23 @@ class GomokuGame {
         // 切换玩家
         this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
         this.updateDisplay();
+        
+        // 如果是AI模式且轮到AI下棋，延迟执行AI下棋
+        if (this.aiMode && this.currentPlayer === this.aiPlayer && !this.gameOver) {
+            setTimeout(() => {
+                this.makeAIMove();
+            }, 500); // 延迟500ms让用户看到切换
+        }
+        
         return true;
     }
 
     // 检查胜利条件
-    checkWin(row, col) {
+    checkWin(row, col, player = null) {
+        if (player === null) {
+            player = this.board[row][col]; // 获取刚下的棋子的玩家
+        }
+        
         const directions = [
             [0, 1],   // 水平
             [1, 0],   // 垂直
@@ -206,11 +223,12 @@ class GomokuGame {
             let count = 1; // 包含当前棋子
             
             // 向一个方向计数
-            count += this.countDirection(row, col, dx, dy);
+            count += this.countDirection(row, col, dx, dy, player);
             // 向相反方向计数
-            count += this.countDirection(row, col, -dx, -dy);
+            count += this.countDirection(row, col, -dx, -dy, player);
             
             if (count >= 5) {
+                console.log(`胜利！玩家 ${player} 在位置 (${row}, ${col}) 形成 ${count} 连珠`);
                 return true;
             }
         }
@@ -219,14 +237,18 @@ class GomokuGame {
     }
 
     // 在指定方向计数连续棋子
-    countDirection(row, col, dx, dy) {
+    countDirection(row, col, dx, dy, player = null) {
+        if (player === null) {
+            player = this.currentPlayer;
+        }
+        
         let count = 0;
         let r = row + dx;
         let c = col + dy;
         
         while (r >= 0 && r < this.boardSize && 
                c >= 0 && c < this.boardSize && 
-               this.board[r][c] === this.currentPlayer) {
+               this.board[r][c] === player) {
             count++;
             r += dx;
             c += dy;
@@ -304,6 +326,188 @@ class GomokuGame {
         this.drawBoard();
         this.updateDisplay();
         return true;
+    }
+
+    // AI下棋
+    makeAIMove() {
+        if (this.gameOver || this.currentPlayer !== this.aiPlayer) {
+            return;
+        }
+        
+        const move = this.getBestMove();
+        if (move) {
+            // 直接执行下棋逻辑，避免递归调用makeMove
+            this.board[move.row][move.col] = this.currentPlayer;
+            this.moveHistory.push({ row: move.row, col: move.col, player: this.currentPlayer });
+            
+            // 检查游戏是否结束
+            if (this.checkWin(move.row, move.col, this.currentPlayer)) {
+                this.gameOver = true;
+                this.handleWin();
+                this.drawBoard();
+                return;
+            }
+            
+            // 检查平局
+            if (this.isBoardFull()) {
+                this.gameOver = true;
+                this.handleDraw();
+                this.drawBoard();
+                return;
+            }
+            
+            // 切换玩家
+            this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
+            this.updateDisplay();
+            this.drawBoard();
+        }
+    }
+
+    // 获取最佳移动位置
+    getBestMove() {
+        // 优先级策略：
+        // 1. 自己获胜
+        // 2. 阻止对方获胜
+        // 3. 形成四连
+        // 4. 阻止对方四连
+        // 5. 形成三连
+        // 6. 中心位置优先
+        
+        const moves = this.getAllPossibleMoves();
+        let bestMove = null;
+        let bestScore = -Infinity;
+        
+        for (const move of moves) {
+            const score = this.evaluateMove(move.row, move.col, this.aiPlayer);
+            if (score > bestScore) {
+                bestScore = score;
+                bestMove = move;
+            }
+        }
+        
+        return bestMove;
+    }
+
+    // 获取所有可能的移动位置
+    getAllPossibleMoves() {
+        const moves = [];
+        const center = Math.floor(this.boardSize / 2);
+        
+        // 优先考虑已有棋子周围的位置
+        for (let row = 0; row < this.boardSize; row++) {
+            for (let col = 0; col < this.boardSize; col++) {
+                if (this.board[row][col] === 0) {
+                    // 检查周围是否有棋子
+                    if (this.hasNeighbor(row, col) || (row === center && col === center)) {
+                        moves.push({ row, col });
+                    }
+                }
+            }
+        }
+        
+        // 如果没有找到合适的位置，返回中心位置
+        return moves.length > 0 ? moves : [{ row: center, col: center }];
+    }
+
+    // 检查位置周围是否有棋子
+    hasNeighbor(row, col) {
+        for (let dr = -2; dr <= 2; dr++) {
+            for (let dc = -2; dc <= 2; dc++) {
+                const newRow = row + dr;
+                const newCol = col + dc;
+                if (newRow >= 0 && newRow < this.boardSize && 
+                    newCol >= 0 && newCol < this.boardSize && 
+                    this.board[newRow][newCol] !== 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    // 评估移动位置的价值
+    evaluateMove(row, col, player) {
+        let score = 0;
+        
+        // 临时放置棋子
+        this.board[row][col] = player;
+        
+        // 检查是否能获胜
+        if (this.checkWin(row, col)) {
+            score += 10000;
+        }
+        
+        // 检查对方是否能获胜（阻止对方）
+        const opponent = player === 1 ? 2 : 1;
+        this.board[row][col] = opponent;
+        if (this.checkWin(row, col)) {
+            score += 5000;
+        }
+        this.board[row][col] = player;
+        
+        // 检查形成四连
+        if (this.countConsecutive(row, col, player) >= 4) {
+            score += 1000;
+        }
+        
+        // 检查形成三连
+        if (this.countConsecutive(row, col, player) >= 3) {
+            score += 100;
+        }
+        
+        // 阻止对方四连
+        this.board[row][col] = opponent;
+        if (this.countConsecutive(row, col, opponent) >= 4) {
+            score += 800;
+        }
+        
+        // 阻止对方三连
+        if (this.countConsecutive(row, col, opponent) >= 3) {
+            score += 50;
+        }
+        this.board[row][col] = player;
+        
+        // 中心位置加分
+        const center = Math.floor(this.boardSize / 2);
+        const distanceFromCenter = Math.abs(row - center) + Math.abs(col - center);
+        score += (this.boardSize - distanceFromCenter) * 2;
+        
+        // 恢复空位
+        this.board[row][col] = 0;
+        
+        return score;
+    }
+
+    // 计算连续棋子数量
+    countConsecutive(row, col, player) {
+        const directions = [[0, 1], [1, 0], [1, 1], [1, -1]];
+        let maxCount = 0;
+        
+        for (const [dx, dy] of directions) {
+            let count = 1;
+            count += this.countDirection(row, col, dx, dy, player);
+            count += this.countDirection(row, col, -dx, -dy, player);
+            maxCount = Math.max(maxCount, count);
+        }
+        
+        return maxCount;
+    }
+
+    // 在指定方向计数连续棋子（指定玩家）
+    countDirection(row, col, dx, dy, player) {
+        let count = 0;
+        let r = row + dx;
+        let c = col + dy;
+        
+        while (r >= 0 && r < this.boardSize && 
+               c >= 0 && c < this.boardSize && 
+               this.board[r][c] === player) {
+            count++;
+            r += dx;
+            c += dy;
+        }
+        
+        return count;
     }
 
     // 获取提示（显示最佳下棋位置）
@@ -435,12 +639,44 @@ class GomokuGame {
         this.initializeBoard();
         this.drawBoard();
         this.updateDisplay();
+        
+        // 如果是AI模式且AI先手，让AI下第一步
+        if (this.aiMode && this.currentPlayer === this.aiPlayer) {
+            setTimeout(() => {
+                this.makeAIMove();
+            }, 500);
+        }
     }
+
+    // 切换AI模式
+    toggleAIMode() {
+        this.aiMode = !this.aiMode;
+        const aiBtn = document.getElementById('ai-mode-btn');
+        
+        if (this.aiMode) {
+            aiBtn.textContent = '👤 双人对战';
+            aiBtn.classList.add('active');
+            this.showMessage('已切换到人机对战模式！您执黑棋，AI执白棋');
+        } else {
+            aiBtn.textContent = '🤖 人机对战';
+            aiBtn.classList.remove('active');
+            this.showMessage('已切换到双人对战模式！');
+        }
+        
+        // 重新开始游戏以应用新模式
+        this.restart();
+    }
+
 
     // 设置事件监听器
     setupEventListeners() {
         // 棋盘点击事件
         this.canvas.addEventListener('click', (event) => {
+            // 在AI模式下，只有轮到人类玩家时才能点击
+            if (this.aiMode && this.currentPlayer === this.aiPlayer) {
+                return;
+            }
+            
             const { row, col } = this.getBoardPosition(event);
             if (row >= 0 && row < this.boardSize && col >= 0 && col < this.boardSize) {
                 if (this.makeMove(row, col)) {
@@ -464,6 +700,10 @@ class GomokuGame {
             this.showHint();
         });
 
+        document.getElementById('ai-mode-btn').addEventListener('click', () => {
+            this.toggleAIMode();
+        });
+
         // 键盘事件
         document.addEventListener('keydown', (event) => {
             switch (event.key) {
@@ -481,6 +721,10 @@ class GomokuGame {
                 case 'H':
                     this.showHint();
                     break;
+                case 'a':
+                case 'A':
+                    this.toggleAIMode();
+                    break;
             }
         });
     }
@@ -495,4 +739,6 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('R - 重新开始');
     console.log('U - 悔棋');
     console.log('H - 提示');
+    console.log('A - 切换AI模式');
+    
 });

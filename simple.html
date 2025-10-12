@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>面膜五子棋 - 简化版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            min-height: 100vh;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid #333;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ff6b6b, #ffd93d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: linear-gradient(135deg, #333 0%, #555 100%);
+            border-radius: 15px;
+            border: 1px solid #444;
+        }
+
+        .current-player {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .player-piece {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .player-piece.black {
+            background: radial-gradient(circle at 30% 30%, #555, #000);
+            color: white;
+        }
+
+        .player-piece.white {
+            background: radial-gradient(circle at 30% 30%, #fff, #ddd);
+            color: #333;
+        }
+
+        .game-board-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+            border-radius: 20px;
+            box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.3);
+            border: 1px solid #444;
+        }
+
+        #game-board {
+            background: #1a1a1a;
+            border: 3px solid #666;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+            cursor: crosshair;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-restart {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .btn-restart:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
+        }
+
+        .btn-ai {
+            background: linear-gradient(45deg, #9b59b6, #8e44ad);
+            color: white;
+            box-shadow: 0 4px 15px rgba(155, 89, 182, 0.4);
+        }
+
+        .btn-ai:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(155, 89, 182, 0.6);
+        }
+
+        .btn-ai.active {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .btn-online {
+            background: linear-gradient(45deg, #00b894, #00a085);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 184, 148, 0.4);
+        }
+
+        .btn-online:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 184, 148, 0.6);
+        }
+
+        .btn-online.active {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .btn-room {
+            background: linear-gradient(45deg, #74b9ff, #0984e3);
+            color: white;
+            box-shadow: 0 4px 15px rgba(116, 185, 255, 0.4);
+            padding: 8px 16px;
+            font-size: 0.9rem;
+        }
+
+        .btn-room:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(116, 185, 255, 0.6);
+        }
+
+        .btn-chat {
+            background: linear-gradient(45deg, #fd79a8, #e84393);
+            color: white;
+            box-shadow: 0 4px 15px rgba(253, 121, 168, 0.4);
+            padding: 8px 16px;
+            font-size: 0.9rem;
+        }
+
+        .btn-chat:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(253, 121, 168, 0.6);
+        }
+
+        .btn-difficulty {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+            padding: 8px 16px;
+            font-size: 0.9rem;
+        }
+
+        .btn-difficulty:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.6);
+        }
+
+        .btn-difficulty.active {
+            background: linear-gradient(45deg, #27ae60, #229954);
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.4);
+        }
+
+        .btn-difficulty.active:hover {
+            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.6);
+        }
+
+        .difficulty-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            border-radius: 15px;
+            border: 1px solid #4a5f7a;
+        }
+
+        .online-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            border-radius: 15px;
+            border: 1px solid #3d5a80;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .status-indicator {
+            font-size: 1.2rem;
+        }
+
+        .room-controls {
+            margin-bottom: 15px;
+        }
+
+        .online-players, .chat-section {
+            margin-top: 15px;
+        }
+
+        .player-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-message {
+            margin: 5px 0;
+            padding: 5px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+            font-size: 0.9rem;
+        }
+
+        .chat-message .sender {
+            font-weight: bold;
+            color: #74b9ff;
+        }
+
+        .chat-message .time {
+            color: #999;
+            font-size: 0.8rem;
+        }
+
+        .partners-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid #333;
+            text-align: center;
+        }
+
+        .partners-title {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .logo-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .partners-logo-image {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            filter: brightness(1.1) contrast(1.1);
+        }
+
+        .footer {
+            margin-top: 20px;
+            padding: 15px;
+            background: linear-gradient(135deg, #2d3436 0%, #636e72 100%);
+            border-radius: 15px;
+            color: white;
+            text-align: center;
+        }
+
+        .brand-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .brand-logo {
+            width: 40px;
+            height: 40px;
+            background: white;
+            color: #2d3436;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .container {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .winner-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #333;
+            padding: 30px;
+            border-radius: 20px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            animation: bounceIn 0.5s ease-out;
+        }
+
+        @keyframes bounceIn {
+            0% {
+                transform: translate(-50%, -50%) scale(0.3);
+                opacity: 0;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.05);
+            }
+            70% {
+                transform: translate(-50%, -50%) scale(0.9);
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="title">面膜五子棋</h1>
+            <div style="color: #666; font-style: italic;">BF Gomoku</div>
+        </header>
+
+        <div class="game-info">
+            <div class="current-player">
+                <span>当前玩家：</span>
+                <span class="player-piece black" id="current-player">●</span>
+                <span id="player-name">黑棋</span>
+            </div>
+            <div id="game-status">游戏进行中</div>
+        </div>
+
+        <div class="game-board-container">
+            <canvas id="game-board" width="600" height="600"></canvas>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-restart" id="restart-btn">重新开始</button>
+            <button class="btn btn-ai" id="ai-mode-btn">🤖 人机对战</button>
+            <button class="btn btn-online" id="online-mode-btn">🌐 联网对战</button>
+        </div>
+
+        <div class="difficulty-section" id="difficulty-section" style="display: none;">
+            <h3 style="text-align: center; margin-bottom: 15px; color: #fff;">选择AI难度</h3>
+            <div style="display: flex; justify-content: center; gap: 10px;">
+                <button class="btn btn-difficulty" data-difficulty="easy">简单</button>
+                <button class="btn btn-difficulty active" data-difficulty="medium">中等</button>
+                <button class="btn btn-difficulty" data-difficulty="hard">困难</button>
+            </div>
+        </div>
+
+        <div class="online-section" id="online-section" style="display: none;">
+            <h3 style="text-align: center; margin-bottom: 15px; color: #fff;">联网对战</h3>
+            
+            <!-- 连接状态 -->
+            <div class="connection-status" id="connection-status">
+                <span class="status-indicator" id="status-indicator">🔴</span>
+                <span id="status-text">未连接</span>
+            </div>
+
+            <!-- 房间操作 -->
+            <div class="room-controls" id="room-controls">
+                <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 15px;">
+                    <input type="text" id="room-id-input" placeholder="房间号" style="padding: 8px; border-radius: 5px; border: 1px solid #666; background: #333; color: white; width: 120px;">
+                    <button class="btn btn-room" id="join-room-btn">加入房间</button>
+                    <button class="btn btn-room" id="create-room-btn">创建房间</button>
+                </div>
+            </div>
+
+            <!-- 在线玩家列表 -->
+            <div class="online-players" id="online-players" style="display: none;">
+                <h4 style="color: #fff; margin-bottom: 10px;">在线玩家</h4>
+                <div id="players-list"></div>
+            </div>
+
+            <!-- 聊天区域 -->
+            <div class="chat-section" id="chat-section" style="display: none;">
+                <h4 style="color: #fff; margin-bottom: 10px;">聊天</h4>
+                <div id="chat-messages" style="height: 100px; overflow-y: auto; background: #222; padding: 10px; border-radius: 5px; margin-bottom: 10px;"></div>
+                <div style="display: flex; gap: 5px;">
+                    <input type="text" id="chat-input" placeholder="输入消息..." style="flex: 1; padding: 8px; border-radius: 5px; border: 1px solid #666; background: #333; color: white;">
+                    <button class="btn btn-chat" id="send-message-btn">发送</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="partners-section">
+            <h3 class="partners-title">合作伙伴</h3>
+            <div class="logo-container">
+                <img src="logo.png" alt="合作伙伴Logo" class="partners-logo-image">
+            </div>
+        </div>
+
+        <footer class="footer">
+            <div class="brand-info">
+                <div class="brand-logo">BF</div>
+                <div style="font-size: 1.1rem; font-weight: bold;">面膜五子棋</div>
+            </div>
+            <div style="font-size: 0.9rem; color: #ddd;">
+                Powered by BF Technology
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        class SimpleGomoku {
+            constructor() {
+                this.boardSize = 15;
+                this.cellSize = 40;
+                this.board = [];
+                this.currentPlayer = 1; // 1=黑棋, 2=白棋
+                this.gameOver = false;
+                this.aiMode = false;
+                this.aiPlayer = 2; // AI执白棋
+                this.aiDifficulty = 'medium'; // 默认中等难度
+                this.onlineMode = false; // 联网模式
+                this.socket = null; // WebSocket连接
+                this.playerId = this.generatePlayerId(); // 玩家ID
+                this.playerName = this.generatePlayerName(); // 玩家名称
+                this.currentRoom = null; // 当前房间
+                this.players = []; // 在线玩家列表
+                
+                this.initializeBoard();
+                this.setupCanvas();
+                this.setupEventListeners();
+                this.updateDisplay();
+            }
+
+            initializeBoard() {
+                this.board = [];
+                for (let i = 0; i < this.boardSize; i++) {
+                    this.board[i] = [];
+                    for (let j = 0; j < this.boardSize; j++) {
+                        this.board[i][j] = 0;
+                    }
+                }
+                this.gameOver = false;
+                this.currentPlayer = 1;
+            }
+
+            setupCanvas() {
+                this.canvas = document.getElementById('game-board');
+                this.ctx = this.canvas.getContext('2d');
+                this.canvas.width = this.boardSize * this.cellSize;
+                this.canvas.height = this.boardSize * this.cellSize;
+                this.drawBoard();
+            }
+
+            drawBoard() {
+                const ctx = this.ctx;
+                ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // 背景
+                ctx.fillStyle = '#1a1a1a';
+                ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // 网格线
+                ctx.strokeStyle = '#666';
+                ctx.lineWidth = 1;
+                
+                for (let i = 0; i <= this.boardSize; i++) {
+                    const pos = i * this.cellSize;
+                    ctx.beginPath();
+                    ctx.moveTo(pos, 0);
+                    ctx.lineTo(pos, this.canvas.height);
+                    ctx.stroke();
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(0, pos);
+                    ctx.lineTo(this.canvas.width, pos);
+                    ctx.stroke();
+                }
+                
+                // 天元和星位
+                const starPoints = [[3, 3], [3, 11], [7, 7], [11, 3], [11, 11]];
+                ctx.fillStyle = '#666';
+                starPoints.forEach(([row, col]) => {
+                    const x = col * this.cellSize;
+                    const y = row * this.cellSize;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 4, 0, 2 * Math.PI);
+                    ctx.fill();
+                });
+                
+                // 棋子
+                for (let row = 0; row < this.boardSize; row++) {
+                    for (let col = 0; col < this.boardSize; col++) {
+                        if (this.board[row][col] !== 0) {
+                            this.drawPiece(row, col, this.board[row][col]);
+                        }
+                    }
+                }
+            }
+
+            drawPiece(row, col, player) {
+                const ctx = this.ctx;
+                const x = col * this.cellSize;
+                const y = row * this.cellSize;
+                const radius = this.cellSize * 0.4;
+                
+                // 渐变效果
+                const gradient = ctx.createRadialGradient(
+                    x - radius * 0.3, y - radius * 0.3, 0,
+                    x, y, radius
+                );
+                
+                if (player === 1) { // 黑棋
+                    gradient.addColorStop(0, '#888');
+                    gradient.addColorStop(1, '#000');
+                } else { // 白棋
+                    gradient.addColorStop(0, '#fff');
+                    gradient.addColorStop(1, '#ddd');
+                }
+                
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // 阴影
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+                ctx.shadowBlur = 3;
+                ctx.shadowOffsetX = 2;
+                ctx.shadowOffsetY = 2;
+                ctx.fill();
+                ctx.shadowColor = 'transparent';
+                ctx.shadowBlur = 0;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 0;
+            }
+
+            makeMove(row, col) {
+                if (this.gameOver || this.board[row][col] !== 0) {
+                    return false;
+                }
+                
+                // AI模式下，只有轮到人类玩家时才能下棋
+                if (this.aiMode && this.currentPlayer === this.aiPlayer) {
+                    return false;
+                }
+                
+                // 联网模式下，只有轮到当前玩家时才能下棋
+                if (this.onlineMode && this.currentPlayer !== 1) {
+                    this.showMessage('请等待对方下棋！');
+                    return false;
+                }
+                
+                console.log(`玩家 ${this.currentPlayer} 下棋到 (${row}, ${col})`);
+                
+                this.board[row][col] = this.currentPlayer;
+                
+                // 检查胜利
+                if (this.checkWin(row, col)) {
+                    this.gameOver = true;
+                    this.handleWin();
+                    this.drawBoard();
+                    return true;
+                }
+                
+                // 检查平局
+                if (this.isBoardFull()) {
+                    this.gameOver = true;
+                    this.handleDraw();
+                    this.drawBoard();
+                    return true;
+                }
+                
+                // 切换玩家
+                this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
+                this.updateDisplay();
+                this.drawBoard();
+                
+                // AI下棋
+                if (this.aiMode && this.currentPlayer === this.aiPlayer && !this.gameOver) {
+                    setTimeout(() => {
+                        this.makeAIMove();
+                    }, 500);
+                }
+                
+                return true;
+            }
+
+            checkWin(row, col) {
+                const player = this.board[row][col];
+                const directions = [[0, 1], [1, 0], [1, 1], [1, -1]];
+                
+                for (let [dx, dy] of directions) {
+                    let count = 1;
+                    count += this.countDirection(row, col, dx, dy, player);
+                    count += this.countDirection(row, col, -dx, -dy, player);
+                    
+                    if (count >= 5) {
+                        console.log(`胜利！玩家 ${player} 形成 ${count} 连珠`);
+                        return true;
+                    }
+                }
+                
+                return false;
+            }
+
+            countDirection(row, col, dx, dy, player) {
+                let count = 0;
+                let r = row + dx;
+                let c = col + dy;
+                
+                while (r >= 0 && r < this.boardSize && 
+                       c >= 0 && c < this.boardSize && 
+                       this.board[r][c] === player) {
+                    count++;
+                    r += dx;
+                    c += dy;
+                }
+                
+                return count;
+            }
+
+            isBoardFull() {
+                for (let row = 0; row < this.boardSize; row++) {
+                    for (let col = 0; col < this.boardSize; col++) {
+                        if (this.board[row][col] === 0) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+
+            makeAIMove() {
+                if (this.gameOver || this.currentPlayer !== this.aiPlayer) {
+                    return;
+                }
+                
+                const move = this.getBestMove();
+                if (move) {
+                    console.log(`AI下棋到 (${move.row}, ${move.col})`);
+                    
+                    this.board[move.row][move.col] = this.currentPlayer;
+                    
+                    if (this.checkWin(move.row, move.col)) {
+                        this.gameOver = true;
+                        this.handleWin();
+                        this.drawBoard();
+                        return;
+                    }
+                    
+                    if (this.isBoardFull()) {
+                        this.gameOver = true;
+                        this.handleDraw();
+                        this.drawBoard();
+                        return;
+                    }
+                    
+                    this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
+                    this.updateDisplay();
+                    this.drawBoard();
+                }
+            }
+
+            getBestMove() {
+                switch (this.aiDifficulty) {
+                    case 'easy':
+                        return this.getEasyMove();
+                    case 'medium':
+                        return this.getMediumMove();
+                    case 'hard':
+                        return this.getHardMove();
+                    default:
+                        return this.getMediumMove();
+                }
+            }
+
+            // 简单难度：随机选择 + 基础策略
+            getEasyMove() {
+                const moves = this.getAllPossibleMoves();
+                if (moves.length === 0) return { row: 7, col: 7 };
+
+                // 50%概率使用基础策略，50%概率随机
+                if (Math.random() < 0.5) {
+                    return this.getBasicMove(moves);
+                } else {
+                    // 随机选择，但偏向中心区域
+                    const centerMoves = moves.filter(move => {
+                        const center = Math.floor(this.boardSize / 2);
+                        const distance = Math.abs(move.row - center) + Math.abs(move.col - center);
+                        return distance <= 3;
+                    });
+                    const selectedMoves = centerMoves.length > 0 ? centerMoves : moves;
+                    return selectedMoves[Math.floor(Math.random() * selectedMoves.length)];
+                }
+            }
+
+            // 中等难度：基础策略 + 简单评估
+            getMediumMove() {
+                const moves = this.getAllPossibleMoves();
+                if (moves.length === 0) return { row: 7, col: 7 };
+
+                let bestMove = moves[0];
+                let bestScore = -Infinity;
+
+                for (const move of moves) {
+                    const score = this.evaluateMove(move.row, move.col, this.aiPlayer);
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestMove = move;
+                    }
+                }
+
+                return bestMove;
+            }
+
+            // 困难难度：Minimax算法 + 深度搜索
+            getHardMove() {
+                const moves = this.getAllPossibleMoves();
+                if (moves.length === 0) return { row: 7, col: 7 };
+
+                // 如果只有少数几个选择，使用中等难度的评估
+                if (moves.length <= 3) {
+                    return this.getMediumMove();
+                }
+
+                // 使用Minimax算法，搜索深度为3
+                let bestMove = moves[0];
+                let bestScore = -Infinity;
+
+                for (const move of moves) {
+                    // 临时下棋
+                    this.board[move.row][move.col] = this.aiPlayer;
+                    
+                    const score = this.minimax(3, false, -Infinity, Infinity, 1, this.aiPlayer);
+                    
+                    // 恢复棋盘
+                    this.board[move.row][move.col] = 0;
+                    
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestMove = move;
+                    }
+                }
+
+                return bestMove;
+            }
+
+            // Minimax算法实现
+            minimax(depth, isMaximizing, alpha, beta, player, originalPlayer) {
+                // 终止条件
+                if (depth === 0) {
+                    return this.evaluateBoard(originalPlayer);
+                }
+
+                const moves = this.getAllPossibleMoves();
+                if (moves.length === 0) {
+                    return 0; // 平局
+                }
+
+                if (isMaximizing) {
+                    let maxEval = -Infinity;
+                    for (const move of moves) {
+                        this.board[move.row][move.col] = player;
+                        const eval = this.minimax(depth - 1, false, alpha, beta, player === 1 ? 2 : 1, originalPlayer);
+                        this.board[move.row][move.col] = 0;
+                        maxEval = Math.max(maxEval, eval);
+                        alpha = Math.max(alpha, eval);
+                        if (beta <= alpha) break; // Beta剪枝
+                    }
+                    return maxEval;
+                } else {
+                    let minEval = Infinity;
+                    for (const move of moves) {
+                        this.board[move.row][move.col] = player;
+                        const eval = this.minimax(depth - 1, true, alpha, beta, player === 1 ? 2 : 1, originalPlayer);
+                        this.board[move.row][move.col] = 0;
+                        minEval = Math.min(minEval, eval);
+                        beta = Math.min(beta, eval);
+                        if (beta <= alpha) break; // Alpha剪枝
+                    }
+                    return minEval;
+                }
+            }
+
+            // 获取所有可能的移动位置
+            getAllPossibleMoves() {
+                const moves = [];
+                const center = Math.floor(this.boardSize / 2);
+                
+                for (let row = 0; row < this.boardSize; row++) {
+                    for (let col = 0; col < this.boardSize; col++) {
+                        if (this.board[row][col] === 0) {
+                            if (this.hasNeighbor(row, col) || (row === center && col === center)) {
+                                moves.push({ row, col });
+                            }
+                        }
+                    }
+                }
+                
+                return moves.length > 0 ? moves : [{ row: center, col: center }];
+            }
+
+            // 基础移动策略
+            getBasicMove(moves) {
+                let bestMove = moves[0];
+                let bestScore = -1;
+
+                for (const move of moves) {
+                    let score = this.evaluateMove(move.row, move.col, this.aiPlayer);
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestMove = move;
+                    }
+                }
+
+                return bestMove;
+            }
+
+            // 评估单个移动的价值
+            evaluateMove(row, col, player) {
+                let score = 0;
+                const opponent = player === 1 ? 2 : 1;
+                
+                // 临时放置棋子
+                this.board[row][col] = player;
+                
+                // 检查是否能获胜
+                if (this.checkWin(row, col)) {
+                    score += 10000;
+                }
+                
+                // 检查对方是否能获胜（阻止对方）
+                this.board[row][col] = opponent;
+                if (this.checkWin(row, col)) {
+                    score += 5000;
+                }
+                this.board[row][col] = player;
+                
+                // 检查形成连子
+                const playerCount = this.countConsecutive(row, col, player);
+                const opponentCount = this.countConsecutive(row, col, opponent);
+                
+                if (playerCount >= 4) score += 1000;
+                else if (playerCount >= 3) score += 100;
+                else if (playerCount >= 2) score += 10;
+                
+                if (opponentCount >= 4) score += 800;
+                else if (opponentCount >= 3) score += 80;
+                else if (opponentCount >= 2) score += 8;
+                
+                // 中心位置加分
+                const center = Math.floor(this.boardSize / 2);
+                const distanceFromCenter = Math.abs(row - center) + Math.abs(col - center);
+                score += (this.boardSize - distanceFromCenter) * 2;
+                
+                // 恢复空位
+                this.board[row][col] = 0;
+                
+                return score;
+            }
+
+            // 计算连续棋子数量
+            countConsecutive(row, col, player) {
+                const directions = [[0, 1], [1, 0], [1, 1], [1, -1]];
+                let maxCount = 0;
+                
+                for (const [dx, dy] of directions) {
+                    let count = 1;
+                    count += this.countDirection(row, col, dx, dy, player);
+                    count += this.countDirection(row, col, -dx, -dy, player);
+                    maxCount = Math.max(maxCount, count);
+                }
+                
+                return maxCount;
+            }
+
+            // 评估整个棋盘的价值
+            evaluateBoard(player) {
+                let score = 0;
+                
+                // 评估所有位置的棋子价值
+                for (let row = 0; row < this.boardSize; row++) {
+                    for (let col = 0; col < this.boardSize; col++) {
+                        if (this.board[row][col] !== 0) {
+                            const pieceScore = this.evaluateMove(row, col, this.board[row][col]);
+                            if (this.board[row][col] === player) {
+                                score += pieceScore;
+                            } else {
+                                score -= pieceScore;
+                            }
+                        }
+                    }
+                }
+                
+                return score;
+            }
+
+            hasNeighbor(row, col) {
+                for (let dr = -2; dr <= 2; dr++) {
+                    for (let dc = -2; dc <= 2; dc++) {
+                        const newRow = row + dr;
+                        const newCol = col + dc;
+                        if (newRow >= 0 && newRow < this.boardSize && 
+                            newCol >= 0 && newCol < this.boardSize && 
+                            this.board[newRow][newCol] !== 0) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+
+            handleWin() {
+                const winner = this.currentPlayer === 1 ? '黑棋' : '白棋';
+                this.showMessage(`${winner}获胜！`);
+            }
+
+            handleDraw() {
+                this.showMessage('平局！');
+            }
+
+            showMessage(message) {
+                const existingMessage = document.querySelector('.winner-message');
+                if (existingMessage) {
+                    existingMessage.remove();
+                }
+                
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'winner-message';
+                messageDiv.textContent = message;
+                document.body.appendChild(messageDiv);
+                
+                setTimeout(() => {
+                    messageDiv.remove();
+                }, 3000);
+            }
+
+            toggleAIMode() {
+                this.aiMode = !this.aiMode;
+                const aiBtn = document.getElementById('ai-mode-btn');
+                const difficultySection = document.getElementById('difficulty-section');
+                
+                if (this.aiMode) {
+                    aiBtn.textContent = '👤 双人对战';
+                    aiBtn.classList.add('active');
+                    difficultySection.style.display = 'block';
+                    this.showMessage(`已切换到人机对战模式！当前难度：${this.getDifficultyName()}，您执黑棋，AI执白棋`);
+                } else {
+                    aiBtn.textContent = '🤖 人机对战';
+                    aiBtn.classList.remove('active');
+                    difficultySection.style.display = 'none';
+                    this.showMessage('已切换到双人对战模式！');
+                }
+                
+                this.restart();
+            }
+
+            getDifficultyName() {
+                switch (this.aiDifficulty) {
+                    case 'easy': return '简单';
+                    case 'medium': return '中等';
+                    case 'hard': return '困难';
+                    default: return '中等';
+                }
+            }
+
+            setDifficulty(difficulty) {
+                this.aiDifficulty = difficulty;
+                
+                // 更新按钮状态
+                document.querySelectorAll('.btn-difficulty').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector(`[data-difficulty="${difficulty}"]`).classList.add('active');
+                
+                this.showMessage(`AI难度已切换到：${this.getDifficultyName()}`);
+            }
+
+            // 生成玩家ID
+            generatePlayerId() {
+                return 'player_' + Math.random().toString(36).substr(2, 9);
+            }
+
+            // 生成玩家名称
+            generatePlayerName() {
+                const names = ['棋手', '高手', '大师', '新手', '玩家', '棋友', '棋迷'];
+                const randomName = names[Math.floor(Math.random() * names.length)];
+                const randomNum = Math.floor(Math.random() * 999) + 1;
+                return `${randomName}${randomNum}`;
+            }
+
+            // 切换联网模式
+            toggleOnlineMode() {
+                this.onlineMode = !this.onlineMode;
+                const onlineBtn = document.getElementById('online-mode-btn');
+                const onlineSection = document.getElementById('online-section');
+                const aiSection = document.getElementById('difficulty-section');
+                
+                if (this.onlineMode) {
+                    onlineBtn.textContent = '👤 本地对战';
+                    onlineBtn.classList.add('active');
+                    onlineSection.style.display = 'block';
+                    aiSection.style.display = 'none';
+                    this.aiMode = false;
+                    
+                    // 重置AI按钮状态
+                    const aiBtn = document.getElementById('ai-mode-btn');
+                    aiBtn.textContent = '🤖 人机对战';
+                    aiBtn.classList.remove('active');
+                    
+                    this.showMessage('已切换到联网对战模式！');
+                    this.connectToServer();
+                } else {
+                    onlineBtn.textContent = '🌐 联网对战';
+                    onlineBtn.classList.remove('active');
+                    onlineSection.style.display = 'none';
+                    this.disconnectFromServer();
+                    this.showMessage('已切换到本地对战模式！');
+                }
+                
+                this.restart();
+            }
+
+            // 连接到服务器（模拟WebSocket连接）
+            connectToServer() {
+                this.updateConnectionStatus('connecting', '连接中...');
+                
+                // 模拟连接延迟
+                setTimeout(() => {
+                    this.updateConnectionStatus('connected', '已连接');
+                    this.showMessage(`欢迎 ${this.playerName}！`);
+                    this.updateOnlinePlayers();
+                    this.showChatSection();
+                }, 1000);
+            }
+
+            // 断开服务器连接
+            disconnectFromServer() {
+                this.updateConnectionStatus('disconnected', '未连接');
+                this.hideChatSection();
+                this.clearPlayersList();
+                this.currentRoom = null;
+            }
+
+            // 更新连接状态
+            updateConnectionStatus(status, text) {
+                const indicator = document.getElementById('status-indicator');
+                const statusText = document.getElementById('status-text');
+                
+                switch (status) {
+                    case 'connecting':
+                        indicator.textContent = '🟡';
+                        break;
+                    case 'connected':
+                        indicator.textContent = '🟢';
+                        break;
+                    case 'disconnected':
+                        indicator.textContent = '🔴';
+                        break;
+                }
+                
+                statusText.textContent = text;
+            }
+
+            // 创建房间
+            createRoom() {
+                const roomId = Math.random().toString(36).substr(2, 6).toUpperCase();
+                this.currentRoom = roomId;
+                this.showMessage(`房间 ${roomId} 已创建！`);
+                this.updateOnlinePlayers();
+                this.addChatMessage('系统', `房间 ${roomId} 已创建，等待其他玩家加入...`);
+            }
+
+            // 加入房间
+            joinRoom() {
+                const roomIdInput = document.getElementById('room-id-input');
+                const roomId = roomIdInput.value.trim().toUpperCase();
+                
+                if (!roomId) {
+                    this.showMessage('请输入房间号！');
+                    return;
+                }
+                
+                this.currentRoom = roomId;
+                this.showMessage(`正在加入房间 ${roomId}...`);
+                this.updateOnlinePlayers();
+                this.addChatMessage('系统', `已加入房间 ${roomId}`);
+                roomIdInput.value = '';
+            }
+
+            // 更新在线玩家列表
+            updateOnlinePlayers() {
+                const playersList = document.getElementById('players-list');
+                const onlinePlayers = document.getElementById('online-players');
+                
+                if (this.onlineMode && this.currentRoom) {
+                    // 模拟其他玩家
+                    this.players = [
+                        { id: this.playerId, name: this.playerName, isOnline: true, isReady: true },
+                        { id: 'player_2', name: '棋手456', isOnline: true, isReady: false },
+                        { id: 'player_3', name: '大师789', isOnline: false, isReady: false }
+                    ];
+                    
+                    playersList.innerHTML = '';
+                    this.players.forEach(player => {
+                        const playerItem = document.createElement('div');
+                        playerItem.className = 'player-item';
+                        playerItem.innerHTML = `
+                            <span>${player.name}</span>
+                            <span>${player.isOnline ? (player.isReady ? '✅' : '⏳') : '❌'}</span>
+                        `;
+                        playersList.appendChild(playerItem);
+                    });
+                    
+                    onlinePlayers.style.display = 'block';
+                } else {
+                    onlinePlayers.style.display = 'none';
+                }
+            }
+
+            // 显示聊天区域
+            showChatSection() {
+                const chatSection = document.getElementById('chat-section');
+                chatSection.style.display = 'block';
+            }
+
+            // 隐藏聊天区域
+            hideChatSection() {
+                const chatSection = document.getElementById('chat-section');
+                chatSection.style.display = 'none';
+            }
+
+            // 清空玩家列表
+            clearPlayersList() {
+                const playersList = document.getElementById('players-list');
+                playersList.innerHTML = '';
+            }
+
+            // 添加聊天消息
+            addChatMessage(sender, message) {
+                const chatMessages = document.getElementById('chat-messages');
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'chat-message';
+                
+                const time = new Date().toLocaleTimeString();
+                messageDiv.innerHTML = `
+                    <span class="sender">${sender}:</span>
+                    <span>${message}</span>
+                    <span class="time">${time}</span>
+                `;
+                
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            // 发送聊天消息
+            sendChatMessage() {
+                const chatInput = document.getElementById('chat-input');
+                const message = chatInput.value.trim();
+                
+                if (message) {
+                    this.addChatMessage(this.playerName, message);
+                    chatInput.value = '';
+                }
+            }
+
+            restart() {
+                this.initializeBoard();
+                this.drawBoard();
+                this.updateDisplay();
+                
+                if (this.aiMode && this.currentPlayer === this.aiPlayer) {
+                    setTimeout(() => {
+                        this.makeAIMove();
+                    }, 500);
+                }
+            }
+
+            updateDisplay() {
+                const playerName = this.currentPlayer === 1 ? '黑棋' : '白棋';
+                const playerElement = document.getElementById('player-name');
+                const statusElement = document.getElementById('game-status');
+                
+                if (this.gameOver) {
+                    playerElement.textContent = '游戏结束';
+                    statusElement.textContent = '游戏结束';
+                } else {
+                    playerElement.textContent = playerName;
+                    statusElement.textContent = '游戏进行中';
+                }
+            }
+
+            setupEventListeners() {
+                this.canvas.addEventListener('click', (event) => {
+                    const rect = this.canvas.getBoundingClientRect();
+                    const x = event.clientX - rect.left;
+                    const y = event.clientY - rect.top;
+                    
+                    const col = Math.round(x / this.cellSize);
+                    const row = Math.round(y / this.cellSize);
+                    
+                    if (row >= 0 && row < this.boardSize && col >= 0 && col < this.boardSize) {
+                        this.makeMove(row, col);
+                    }
+                });
+
+                document.getElementById('restart-btn').addEventListener('click', () => {
+                    this.restart();
+                });
+
+                document.getElementById('ai-mode-btn').addEventListener('click', () => {
+                    this.toggleAIMode();
+                });
+
+                document.getElementById('online-mode-btn').addEventListener('click', () => {
+                    this.toggleOnlineMode();
+                });
+
+                // 难度选择按钮
+                document.querySelectorAll('.btn-difficulty').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const difficulty = btn.getAttribute('data-difficulty');
+                        this.setDifficulty(difficulty);
+                    });
+                });
+
+                // 联网功能按钮
+                document.getElementById('create-room-btn').addEventListener('click', () => {
+                    this.createRoom();
+                });
+
+                document.getElementById('join-room-btn').addEventListener('click', () => {
+                    this.joinRoom();
+                });
+
+                document.getElementById('send-message-btn').addEventListener('click', () => {
+                    this.sendChatMessage();
+                });
+
+                // 回车发送聊天消息
+                document.getElementById('chat-input').addEventListener('keypress', (event) => {
+                    if (event.key === 'Enter') {
+                        this.sendChatMessage();
+                    }
+                });
+            }
+        }
+
+        // 初始化游戏
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('页面加载完成，开始初始化游戏...');
+            try {
+                const game = new SimpleGomoku();
+                console.log('五子棋游戏已加载');
+                console.log('AI难度等级：');
+                console.log('- 简单：随机策略 + 基础防守');
+                console.log('- 中等：启发式评估 + 策略思考');
+                console.log('- 困难：Minimax算法 + Alpha-Beta剪枝');
+            } catch (error) {
+                console.error('游戏初始化失败:', error);
+                alert('游戏初始化失败: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>
