@@ -1,0 +1,658 @@
+/* 基础样式重置 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Microsoft YaHei', 'Arial', sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    color: #333;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+/* 头部标题样式 */
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+    background: linear-gradient(45deg, #ff6b6b, #ffd93d);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.title {
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    color: #666;
+    font-style: italic;
+}
+
+/* 游戏信息区域 */
+.game-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 15px;
+    color: white;
+}
+
+.current-player {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.player-piece {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.player-piece.black {
+    background: radial-gradient(circle at 30% 30%, #555, #000);
+    color: white;
+}
+
+.player-piece.white {
+    background: radial-gradient(circle at 30% 30%, #fff, #ddd);
+    color: #333;
+}
+
+.game-status {
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+/* 棋盘容器 */
+.game-board-container {
+    display: flex;
+    justify-content: center;
+    margin: 30px 0;
+    padding: 20px;
+    background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+    border-radius: 20px;
+    box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+#game-board {
+    background: #f8f9fa;
+    border: 3px solid #495057;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    cursor: crosshair;
+    transition: transform 0.2s ease;
+}
+
+#game-board:hover {
+    transform: scale(1.02);
+}
+
+/* 游戏控制按钮 */
+.game-controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 25px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-primary {
+    background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
+}
+
+.btn-secondary {
+    background: linear-gradient(45deg, #74b9ff, #0984e3);
+    color: white;
+    box-shadow: 0 4px 15px rgba(116, 185, 255, 0.4);
+}
+
+.btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(116, 185, 255, 0.6);
+}
+
+.btn-info {
+    background: linear-gradient(45deg, #00b894, #00a085);
+    color: white;
+    box-shadow: 0 4px 15px rgba(0, 184, 148, 0.4);
+}
+
+.btn-info:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 184, 148, 0.6);
+}
+
+/* 游戏统计 */
+.game-stats {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px 0;
+    padding: 20px;
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    border-radius: 15px;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-label {
+    display: block;
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+}
+
+/* 合作伙伴Logo展示区域 */
+.partners-section {
+    margin: 30px 0;
+    padding: 25px;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.partners-title {
+    text-align: center;
+    color: white;
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 25px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.partners-logos {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.logo-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.partner-logo {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    padding: 15px 20px;
+    min-width: 120px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+.partner-logo:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    border-color: #ffd700;
+}
+
+/* 各个品牌logo的具体样式 */
+.logo-bf {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #2d3436;
+    background: linear-gradient(45deg, #ff6b6b, #ffd93d);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.logo-mall88 {
+    text-align: center;
+}
+
+.mall88-text-small {
+    font-size: 0.7rem;
+    color: #666;
+    margin-bottom: 2px;
+}
+
+.mall88-text-large {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #d4af37;
+    font-family: 'Arial Black', sans-serif;
+}
+
+.logo-f1h2o {
+    text-align: center;
+}
+
+.f1h2o-main {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #e74c3c;
+    margin-bottom: 2px;
+}
+
+.f1h2o-sub {
+    font-size: 0.6rem;
+    color: #666;
+    white-space: nowrap;
+}
+
+.logo-twt {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #d4af37;
+}
+
+.logo-moutai {
+    text-align: center;
+}
+
+.moutai-top {
+    font-size: 0.9rem;
+    color: #e74c3c;
+    margin-bottom: 2px;
+}
+
+.moutai-bottom {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #2d3436;
+}
+
+.logo-fpa {
+    text-align: center;
+}
+
+.fpa-text {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #27ae60;
+    margin-bottom: 2px;
+}
+
+.fpa-sub {
+    font-size: 0.6rem;
+    color: #666;
+    white-space: nowrap;
+}
+
+.logo-be {
+    text-align: center;
+}
+
+.be-bird {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+}
+
+.be-text {
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #2d3436;
+}
+
+.logo-auswan {
+    text-align: center;
+}
+
+.auswan-swan {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+}
+
+.auswan-text {
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #e74c3c;
+}
+
+.logo-laurel {
+    text-align: center;
+}
+
+.laurel-wreath {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+}
+
+.laurel-text {
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #d4af37;
+}
+
+.logo-zeekr {
+    text-align: center;
+}
+
+.zeekr-symbol {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+}
+
+.zeekr-text {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #2d3436;
+}
+
+.logo-ebest {
+    text-align: center;
+}
+
+.ebest-text {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #f39c12;
+    margin-bottom: 2px;
+}
+
+.ebest-sub {
+    font-size: 0.6rem;
+    color: #666;
+}
+
+.logo-abc {
+    text-align: center;
+}
+
+.abc-text {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #2d3436;
+    margin-bottom: 2px;
+}
+
+.abc-sub {
+    font-size: 0.6rem;
+    color: #666;
+}
+
+.logo-hero {
+    text-align: center;
+}
+
+.hero-symbol {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+}
+
+.hero-text {
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #d4af37;
+}
+
+/* 底部品牌信息 */
+.footer {
+    margin-top: 30px;
+    padding: 20px;
+    background: linear-gradient(135deg, #2d3436 0%, #636e72 100%);
+    border-radius: 15px;
+    color: white;
+    text-align: center;
+}
+
+.brand-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.brand-logo {
+    width: 50px;
+    height: 50px;
+    background: white;
+    color: #2d3436;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.brand-text {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.sponsor-info {
+    font-size: 0.9rem;
+    color: #ddd;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .container {
+        margin: 10px;
+        padding: 15px;
+    }
+    
+    .title {
+        font-size: 2rem;
+    }
+    
+    .game-info {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .game-controls {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .btn {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+    
+    #game-board {
+        width: 100%;
+        max-width: 400px;
+        height: auto;
+    }
+    
+    .game-stats {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    /* 合作伙伴logo响应式 */
+    .partners-section {
+        padding: 15px;
+    }
+    
+    .partners-title {
+        font-size: 1.4rem;
+    }
+    
+    .logo-row {
+        gap: 10px;
+    }
+    
+    .partner-logo {
+        min-width: 100px;
+        height: 70px;
+        padding: 10px 15px;
+    }
+    
+    .logo-bf {
+        font-size: 1.5rem;
+    }
+    
+    .mall88-text-large {
+        font-size: 1rem;
+    }
+    
+    .f1h2o-main {
+        font-size: 1.2rem;
+    }
+    
+    .logo-twt {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .title {
+        font-size: 1.5rem;
+    }
+    
+    .brand-info {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    #game-board {
+        max-width: 300px;
+    }
+    
+    /* 超小屏幕的合作伙伴logo样式 */
+    .partners-title {
+        font-size: 1.2rem;
+    }
+    
+    .logo-row {
+        gap: 8px;
+    }
+    
+    .partner-logo {
+        min-width: 80px;
+        height: 60px;
+        padding: 8px 12px;
+    }
+    
+    .logo-bf {
+        font-size: 1.2rem;
+    }
+    
+    .mall88-text-large {
+        font-size: 0.9rem;
+    }
+    
+    .f1h2o-main {
+        font-size: 1rem;
+    }
+    
+    .logo-twt {
+        font-size: 1.2rem;
+    }
+    
+    .moutai-top {
+        font-size: 0.8rem;
+    }
+    
+    .moutai-bottom {
+        font-size: 0.9rem;
+    }
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.container {
+    animation: fadeIn 0.6s ease-out;
+}
+
+/* 胜利提示样式 */
+.winner-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, #ffd700, #ffed4e);
+    color: #333;
+    padding: 30px;
+    border-radius: 20px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    animation: bounceIn 0.5s ease-out;
+}
+
+@keyframes bounceIn {
+    0% {
+        transform: translate(-50%, -50%) scale(0.3);
+        opacity: 0;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.05);
+    }
+    70% {
+        transform: translate(-50%, -50%) scale(0.9);
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}

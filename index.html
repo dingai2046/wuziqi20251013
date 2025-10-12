@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>面膜五子棋 - BF Gomoku</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 头部标题 -->
+        <header class="header">
+            <h1 class="title">面膜五子棋</h1>
+            <div class="subtitle">BF Gomoku</div>
+        </header>
+
+        <!-- 游戏状态信息 -->
+        <div class="game-info">
+            <div class="current-player">
+                <span class="player-label">当前玩家：</span>
+                <span class="player-piece black" id="current-player">●</span>
+                <span class="player-name" id="player-name">黑棋</span>
+            </div>
+            <div class="game-status" id="game-status">游戏进行中</div>
+        </div>
+
+        <!-- 五子棋棋盘 -->
+        <div class="game-board-container">
+            <canvas id="game-board" width="600" height="600"></canvas>
+        </div>
+
+        <!-- 游戏控制按钮 -->
+        <div class="game-controls">
+            <button class="btn btn-primary" id="restart-btn">重新开始</button>
+            <button class="btn btn-secondary" id="undo-btn">悔棋</button>
+            <button class="btn btn-info" id="hint-btn">提示</button>
+        </div>
+
+        <!-- 游戏统计 -->
+        <div class="game-stats">
+            <div class="stat-item">
+                <span class="stat-label">黑棋获胜：</span>
+                <span class="stat-value" id="black-wins">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">白棋获胜：</span>
+                <span class="stat-value" id="white-wins">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">平局：</span>
+                <span class="stat-value" id="draws">0</span>
+            </div>
+        </div>
+
+        <!-- 合作伙伴Logo展示 -->
+        <div class="partners-section">
+            <h3 class="partners-title">合作伙伴</h3>
+            <div class="partners-logos">
+                <!-- 第一行 -->
+                <div class="logo-row">
+                    <div class="partner-logo" data-brand="BF">
+                        <div class="logo-bf">BF</div>
+                    </div>
+                    <div class="partner-logo" data-brand="MALL 88">
+                        <div class="logo-mall88">
+                            <div class="mall88-text-small">ST. LEONARDS</div>
+                            <div class="mall88-text-large">MALL 88</div>
+                        </div>
+                    </div>
+                    <div class="partner-logo" data-brand="F1H2O">
+                        <div class="logo-f1h2o">
+                            <div class="f1h2o-main">F1H2O</div>
+                            <div class="f1h2o-sub">U.I.M. WORLD CHAMPIONSHIP</div>
+                        </div>
+                    </div>
+                    <div class="partner-logo" data-brand="TWT">
+                        <div class="logo-twt">TWT</div>
+                    </div>
+                    <div class="partner-logo" data-brand="MOUTAI">
+                        <div class="logo-moutai">
+                            <div class="moutai-top">茅台</div>
+                            <div class="moutai-bottom">MOUTAI</div>
+                        </div>
+                    </div>
+                    <div class="partner-logo" data-brand="FPA">
+                        <div class="logo-fpa">
+                            <div class="fpa-text">FPA</div>
+                            <div class="fpa-sub">Ferngrove Pharmaceuticals</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 第二行 -->
+                <div class="logo-row">
+                    <div class="partner-logo" data-brand="B&E Foods">
+                        <div class="logo-be">
+                            <div class="be-bird">🐦</div>
+                            <div class="be-text">B&E FOODS</div>
+                        </div>
+                    </div>
+                    <div class="partner-logo" data-brand="AUSWAN CREEK">
+                        <div class="logo-auswan">
+                            <div class="auswan-swan">🦢</div>
+                            <div class="auswan-text">AUSWAN CREEK</div>
+                        </div>
+                    </div>
+                    <div class="partner-logo" data-brand="Laurel">
+                        <div class="logo-laurel">
+                            <div class="laurel-wreath">🏆</div>
+                            <div class="laurel-text">Laurel</div>
+                        </div>
+                    </div>
+                    <div class="partner-logo" data-brand="ZEEKR">
+                        <div class="logo-zeekr">
+                            <div class="zeekr-symbol">⚡</div>
+                            <div class="zeekr-text">ZEEKR</div>
+                        </div>
+                    </div>
+                    <div class="partner-logo" data-brand="eBest">
+                        <div class="logo-ebest">
+                            <div class="ebest-text">eBest</div>
+                            <div class="ebest-sub">online shopping</div>
+                        </div>
+                    </div>
+                    <div class="partner-logo" data-brand="ABC">
+                        <div class="logo-abc">
+                            <div class="abc-text">ABC</div>
+                            <div class="abc-sub">Awakening BioTech</div>
+                        </div>
+                    </div>
+                    <div class="partner-logo" data-brand="Hero's Journey">
+                        <div class="logo-hero">
+                            <div class="hero-symbol">🎬</div>
+                            <div class="hero-text">Hero's Journey</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部品牌信息 -->
+        <footer class="footer">
+            <div class="brand-info">
+                <div class="brand-logo">BF</div>
+                <div class="brand-text">面膜五子棋</div>
+            </div>
+            <div class="sponsor-info">
+                <span>Powered by BF Technology</span>
+            </div>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
