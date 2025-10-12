@@ -117,14 +117,55 @@
                 text-shadow: 0 0 20px rgba(52, 152, 219, 0.8), 0 0 30px rgba(52, 152, 219, 0.3);
             }
         }
+
+        /* 标题图片样式 */
+        .title-image-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        .title-image {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+            image-rendering: pixelated;
+            filter: brightness(1.05) contrast(1.1);
+            transition: all 0.3s ease;
+            border-radius: 10px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .title-image:hover {
+            transform: scale(1.02);
+            filter: brightness(1.1) contrast(1.15);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        /* 响应式标题图片 */
+        @media (max-width: 768px) {
+            .title-image {
+                max-width: 90%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .title-image {
+                max-width: 85%;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <!-- 头部标题 -->
         <header class="header">
-            <h1 class="title">面膜五子棋</h1>
-            <div class="subtitle">BF Gomoku - 测试版</div>
+            <div class="title-image-container">
+                <img src="title.png" alt="面膜五子棋 - BF Gomoku 测试版" class="title-image">
+            </div>
         </header>
 
         <!-- 游戏状态信息 -->
@@ -220,10 +261,11 @@
                     whiteWins: 0,
                     draws: 0
                 };
-                this.pieceImage = null; // 存储棋子图案
+                this.pieceImage = null; // 存储黑棋图案（面膜）
+                this.whitePieceImage = null; // 存储白棋图案（BF Logo）
                 
                 console.log('初始化游戏...');
-                this.loadPieceImage();
+                this.loadPieceImages();
                 this.initializeBoard();
                 this.setupCanvas();
                 this.setupEventListeners();
@@ -232,41 +274,75 @@
                 console.log('游戏初始化完成');
             }
 
-            loadPieceImage() {
-                // 加载面膜图案图片
+            loadPieceImages() {
+                // 加载黑棋图案（面膜）
                 this.pieceImage = new Image();
                 
-                // 尝试加载多种可能的图片文件名
-                const possibleFiles = [
+                // 尝试加载多种可能的黑棋图片文件名
+                const blackPieceFiles = [
                     'mask-piece.png',
                     'mask.png', 
                     'piece.png',
                     'face-mask.png'
                 ];
                 
-                let currentIndex = 0;
+                let blackIndex = 0;
                 
-                const tryLoadImage = () => {
-                    if (currentIndex >= possibleFiles.length) {
-                        console.log('所有图片文件都加载失败，使用备用图案');
+                const tryLoadBlackImage = () => {
+                    if (blackIndex >= blackPieceFiles.length) {
+                        console.log('所有黑棋图片文件都加载失败，使用备用图案');
                         this.createFallbackPattern();
                         return;
                     }
                     
-                    this.pieceImage.src = possibleFiles[currentIndex];
+                    this.pieceImage.src = blackPieceFiles[blackIndex];
                     
                     this.pieceImage.onerror = () => {
-                        console.log(`${possibleFiles[currentIndex]} 加载失败，尝试下一个文件`);
-                        currentIndex++;
-                        tryLoadImage();
+                        console.log(`${blackPieceFiles[blackIndex]} 加载失败，尝试下一个文件`);
+                        blackIndex++;
+                        tryLoadBlackImage();
                     };
                     
                     this.pieceImage.onload = () => {
-                        console.log(`${possibleFiles[currentIndex]} 加载成功！`);
+                        console.log(`${blackPieceFiles[blackIndex]} 加载成功！`);
                     };
                 };
                 
-                tryLoadImage();
+                tryLoadBlackImage();
+                
+                // 加载白棋图案（BF Logo）
+                this.whitePieceImage = new Image();
+                
+                // 尝试加载多种可能的白棋图片文件名
+                const whitePieceFiles = [
+                    'bf-logo.png',
+                    'bf.png',
+                    'logo-white.png',
+                    'white-piece.png'
+                ];
+                
+                let whiteIndex = 0;
+                
+                const tryLoadWhiteImage = () => {
+                    if (whiteIndex >= whitePieceFiles.length) {
+                        console.log('所有白棋图片文件都加载失败，使用默认样式');
+                        return;
+                    }
+                    
+                    this.whitePieceImage.src = whitePieceFiles[whiteIndex];
+                    
+                    this.whitePieceImage.onerror = () => {
+                        console.log(`${whitePieceFiles[whiteIndex]} 加载失败，尝试下一个文件`);
+                        whiteIndex++;
+                        tryLoadWhiteImage();
+                    };
+                    
+                    this.whitePieceImage.onload = () => {
+                        console.log(`${whitePieceFiles[whiteIndex]} 加载成功！`);
+                    };
+                };
+                
+                tryLoadWhiteImage();
             }
 
             createFallbackPattern() {
@@ -350,9 +426,27 @@
                     return;
                 }
                 
-                this.canvas.width = this.boardSize * this.cellSize;
-                this.canvas.height = this.boardSize * this.cellSize;
-                console.log(`Canvas尺寸: ${this.canvas.width}x${this.canvas.height}`);
+                // 设置高分辨率Canvas
+                const devicePixelRatio = window.devicePixelRatio || 1;
+                const rect = this.canvas.getBoundingClientRect();
+                
+                // 设置Canvas的实际尺寸（高分辨率）
+                this.canvas.width = this.boardSize * this.cellSize * devicePixelRatio;
+                this.canvas.height = this.boardSize * this.cellSize * devicePixelRatio;
+                
+                // 设置Canvas的显示尺寸
+                this.canvas.style.width = (this.boardSize * this.cellSize) + 'px';
+                this.canvas.style.height = (this.boardSize * this.cellSize) + 'px';
+                
+                // 缩放上下文以匹配设备像素比
+                this.ctx.scale(devicePixelRatio, devicePixelRatio);
+                
+                // 启用高质量渲染
+                this.ctx.imageSmoothingEnabled = true;
+                this.ctx.imageSmoothingQuality = 'high';
+                
+                console.log(`Canvas尺寸: ${this.canvas.width}x${this.canvas.height} (像素比: ${devicePixelRatio})`);
+                console.log(`Canvas显示尺寸: ${this.canvas.style.width}x${this.canvas.style.height}`);
                 
                 this.drawBoard();
             }
@@ -367,7 +461,7 @@
                 
                 // 网格线
                 ctx.strokeStyle = '#666';
-                ctx.lineWidth = 1;
+                ctx.lineWidth = 1.5; // 稍微加粗网格线
                 
                 for (let i = 0; i <= this.boardSize; i++) {
                     const pos = i * this.cellSize;
@@ -389,7 +483,7 @@
                     const x = col * this.cellSize;
                     const y = row * this.cellSize;
                     ctx.beginPath();
-                    ctx.arc(x, y, 4, 0, 2 * Math.PI);
+                    ctx.arc(x, y, 5, 0, 2 * Math.PI); // 从4增加到5
                     ctx.fill();
                 });
                 
@@ -407,31 +501,45 @@
                 const ctx = this.ctx;
                 const x = col * this.cellSize;
                 const y = row * this.cellSize;
-                const radius = this.cellSize * 0.4;
+                const radius = this.cellSize * 0.52; // 最大尺寸0.52，棋子最大最清晰
                 
                 if (player === 1) {
                     // 使用面膜图案
                     if (this.pieceImage) {
-                        // 添加阴影效果
+                        // 保存当前上下文状态
+                        ctx.save();
+                        
+                        // 启用高质量图像渲染
+                        ctx.imageSmoothingEnabled = true;
+                        ctx.imageSmoothingQuality = 'high';
+                        
+                        // 添加阴影效果（在裁剪前添加）
                         ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-                        ctx.shadowBlur = 3;
+                        ctx.shadowBlur = 4;
                         ctx.shadowOffsetX = 2;
                         ctx.shadowOffsetY = 2;
                         
-                        // 绘制面膜图案
+                        // 绘制完整的正方形图案，不进行圆形裁剪
+                        const imageSize = radius * 2; // 完整的棋子尺寸
+                        
                         ctx.drawImage(
                             this.pieceImage,
                             x - radius,
                             y - radius,
-                            radius * 2,
-                            radius * 2
+                            imageSize,
+                            imageSize
                         );
                         
-                        // 清除阴影
-                        ctx.shadowColor = 'transparent';
-                        ctx.shadowBlur = 0;
-                        ctx.shadowOffsetX = 0;
-                        ctx.shadowOffsetY = 0;
+                        // 恢复上下文状态
+                        ctx.restore();
+                        
+                        // 如果需要圆形边界，在图案上方绘制一个圆形边框
+                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.arc(x, y, radius, 0, 2 * Math.PI);
+                        ctx.stroke();
+                        
                     } else {
                         // 如果图案还没加载，使用备用样式
                         const gradient = ctx.createRadialGradient(
@@ -450,18 +558,56 @@
                     }
                     
                 } else {
-                    // 白棋保持原有样式
-                    const gradient = ctx.createRadialGradient(
-                        x - radius * 0.3, y - radius * 0.3, 0,
-                        x, y, radius
-                    );
-                    gradient.addColorStop(0, '#fff');
-                    gradient.addColorStop(1, '#ddd');
-                    
-                    ctx.fillStyle = gradient;
-                    ctx.beginPath();
-                    ctx.arc(x, y, radius, 0, 2 * Math.PI);
-                    ctx.fill();
+                    // 白棋使用BF Logo图案
+                    if (this.whitePieceImage) {
+                        // 保存当前上下文状态
+                        ctx.save();
+                        
+                        // 启用高质量图像渲染
+                        ctx.imageSmoothingEnabled = true;
+                        ctx.imageSmoothingQuality = 'high';
+                        
+                        // 添加阴影效果
+                        ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+                        ctx.shadowBlur = 4;
+                        ctx.shadowOffsetX = 2;
+                        ctx.shadowOffsetY = 2;
+                        
+                        // 绘制完整的正方形图案
+                        const imageSize = radius * 2;
+                        
+                        ctx.drawImage(
+                            this.whitePieceImage,
+                            x - radius,
+                            y - radius,
+                            imageSize,
+                            imageSize
+                        );
+                        
+                        // 恢复上下文状态
+                        ctx.restore();
+                        
+                        // 添加圆形边框
+                        ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.arc(x, y, radius, 0, 2 * Math.PI);
+                        ctx.stroke();
+                        
+                    } else {
+                        // 如果图案还没加载，使用备用样式
+                        const gradient = ctx.createRadialGradient(
+                            x - radius * 0.3, y - radius * 0.3, 0,
+                            x, y, radius
+                        );
+                        gradient.addColorStop(0, '#fff');
+                        gradient.addColorStop(1, '#ddd');
+                        
+                        ctx.fillStyle = gradient;
+                        ctx.beginPath();
+                        ctx.arc(x, y, radius, 0, 2 * Math.PI);
+                        ctx.fill();
+                    }
                 }
             }
 
