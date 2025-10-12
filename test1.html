@@ -101,6 +101,22 @@
                 opacity: 1;
             }
         }
+
+        /* 蓝棋样式 */
+        .player-piece.blue {
+            color: #3498DB;
+            text-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
+            animation: blueGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes blueGlow {
+            from {
+                text-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
+            }
+            to {
+                text-shadow: 0 0 20px rgba(52, 152, 219, 0.8), 0 0 30px rgba(52, 152, 219, 0.3);
+            }
+        }
     </style>
 </head>
 <body>
@@ -115,8 +131,8 @@
         <div class="game-info">
             <div class="current-player">
                 <span class="player-label">当前玩家：</span>
-                <span class="player-piece black" id="current-player">●</span>
-                <span class="player-name" id="player-name">黑棋</span>
+                <span class="player-piece blue" id="current-player">●</span>
+                <span class="player-name" id="player-name">蓝棋</span>
             </div>
             <div class="game-status" id="game-status">游戏进行中</div>
         </div>
@@ -150,7 +166,7 @@
         <!-- 游戏统计 -->
         <div class="game-stats">
             <div class="stat-item">
-                <span class="stat-label">黑棋获胜：</span>
+                <span class="stat-label">蓝棋获胜：</span>
                 <span class="stat-value" id="black-wins">0</span>
             </div>
             <div class="stat-item">
@@ -204,14 +220,108 @@
                     whiteWins: 0,
                     draws: 0
                 };
+                this.pieceImage = null; // 存储棋子图案
                 
                 console.log('初始化游戏...');
+                this.loadPieceImage();
                 this.initializeBoard();
                 this.setupCanvas();
                 this.setupEventListeners();
                 this.loadStats();
                 this.updateDisplay();
                 console.log('游戏初始化完成');
+            }
+
+            loadPieceImage() {
+                // 加载面膜图案图片
+                this.pieceImage = new Image();
+                
+                // 尝试加载多种可能的图片文件名
+                const possibleFiles = [
+                    'mask-piece.png',
+                    'mask.png', 
+                    'piece.png',
+                    'face-mask.png'
+                ];
+                
+                let currentIndex = 0;
+                
+                const tryLoadImage = () => {
+                    if (currentIndex >= possibleFiles.length) {
+                        console.log('所有图片文件都加载失败，使用备用图案');
+                        this.createFallbackPattern();
+                        return;
+                    }
+                    
+                    this.pieceImage.src = possibleFiles[currentIndex];
+                    
+                    this.pieceImage.onerror = () => {
+                        console.log(`${possibleFiles[currentIndex]} 加载失败，尝试下一个文件`);
+                        currentIndex++;
+                        tryLoadImage();
+                    };
+                    
+                    this.pieceImage.onload = () => {
+                        console.log(`${possibleFiles[currentIndex]} 加载成功！`);
+                    };
+                };
+                
+                tryLoadImage();
+            }
+
+            createFallbackPattern() {
+                // 创建备用图案
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = 80;
+                canvas.height = 80;
+                
+                // 绘制简单的面膜图案作为备用
+                const centerX = 40;
+                const centerY = 40;
+                const radius = 35;
+                
+                // 背景圆形
+                const gradient = ctx.createRadialGradient(
+                    centerX - 15, centerY - 15, 0,
+                    centerX, centerY, radius
+                );
+                
+                gradient.addColorStop(0, '#ADD8E6');
+                gradient.addColorStop(0.3, '#87CEFA');
+                gradient.addColorStop(0.7, '#4169E1');
+                gradient.addColorStop(1, '#1E90FF');
+                
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // 绘制人脸轮廓
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                
+                // 简化的脸部轮廓
+                ctx.arc(centerX - 5, centerY - 8, 3, 0, 2 * Math.PI); // 鼻子
+                ctx.moveTo(centerX - 8, centerY + 5);
+                ctx.quadraticCurveTo(centerX, centerY + 8, centerX + 8, centerY + 5); // 嘴巴
+                
+                ctx.stroke();
+                
+                // 能量线条
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+                ctx.lineWidth = 1;
+                for (let i = 0; i < 3; i++) {
+                    const y = centerY - 10 + i * 8;
+                    ctx.beginPath();
+                    ctx.moveTo(centerX - 15, y);
+                    ctx.quadraticCurveTo(centerX, y - 2, centerX + 15, y);
+                    ctx.stroke();
+                }
+                
+                this.pieceImage = new Image();
+                this.pieceImage.src = canvas.toDataURL();
             }
 
             initializeBoard() {
@@ -299,33 +409,60 @@
                 const y = row * this.cellSize;
                 const radius = this.cellSize * 0.4;
                 
-                const gradient = ctx.createRadialGradient(
-                    x - radius * 0.3, y - radius * 0.3, 0,
-                    x, y, radius
-                );
-                
                 if (player === 1) {
-                    gradient.addColorStop(0, '#888');
-                    gradient.addColorStop(1, '#000');
+                    // 使用面膜图案
+                    if (this.pieceImage) {
+                        // 添加阴影效果
+                        ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+                        ctx.shadowBlur = 3;
+                        ctx.shadowOffsetX = 2;
+                        ctx.shadowOffsetY = 2;
+                        
+                        // 绘制面膜图案
+                        ctx.drawImage(
+                            this.pieceImage,
+                            x - radius,
+                            y - radius,
+                            radius * 2,
+                            radius * 2
+                        );
+                        
+                        // 清除阴影
+                        ctx.shadowColor = 'transparent';
+                        ctx.shadowBlur = 0;
+                        ctx.shadowOffsetX = 0;
+                        ctx.shadowOffsetY = 0;
+                    } else {
+                        // 如果图案还没加载，使用备用样式
+                        const gradient = ctx.createRadialGradient(
+                            x - radius * 0.2, y - radius * 0.2, 0,
+                            x, y, radius
+                        );
+                        gradient.addColorStop(0, '#ADD8E6');
+                        gradient.addColorStop(0.3, '#87CEFA');
+                        gradient.addColorStop(0.7, '#4169E1');
+                        gradient.addColorStop(1, '#1E90FF');
+                        
+                        ctx.fillStyle = gradient;
+                        ctx.beginPath();
+                        ctx.arc(x, y, radius, 0, 2 * Math.PI);
+                        ctx.fill();
+                    }
+                    
                 } else {
+                    // 白棋保持原有样式
+                    const gradient = ctx.createRadialGradient(
+                        x - radius * 0.3, y - radius * 0.3, 0,
+                        x, y, radius
+                    );
                     gradient.addColorStop(0, '#fff');
                     gradient.addColorStop(1, '#ddd');
+                    
+                    ctx.fillStyle = gradient;
+                    ctx.beginPath();
+                    ctx.arc(x, y, radius, 0, 2 * Math.PI);
+                    ctx.fill();
                 }
-                
-                ctx.fillStyle = gradient;
-                ctx.beginPath();
-                ctx.arc(x, y, radius, 0, 2 * Math.PI);
-                ctx.fill();
-                
-                ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-                ctx.shadowBlur = 3;
-                ctx.shadowOffsetX = 2;
-                ctx.shadowOffsetY = 2;
-                ctx.fill();
-                ctx.shadowColor = 'transparent';
-                ctx.shadowBlur = 0;
-                ctx.shadowOffsetX = 0;
-                ctx.shadowOffsetY = 0;
             }
 
             makeMove(row, col) {
@@ -546,7 +683,7 @@
             }
 
             handleWin() {
-                const winner = this.currentPlayer === 1 ? '黑棋' : '白棋';
+                const winner = this.currentPlayer === 1 ? '蓝棋' : '白棋';
                 this.showMessage(`${winner}获胜！`);
                 
                 if (this.currentPlayer === 1) {
@@ -642,7 +779,7 @@
             }
 
             updateDisplay() {
-                const playerName = this.currentPlayer === 1 ? '黑棋' : '白棋';
+                const playerName = this.currentPlayer === 1 ? '蓝棋' : '白棋';
                 document.getElementById('player-name').textContent = playerName;
                 document.getElementById('game-status').textContent = this.gameOver ? '游戏结束' : '游戏进行中';
                 this.updateStats();
@@ -686,7 +823,7 @@
                     aiBtn.textContent = '👤 双人对战';
                     aiBtn.classList.add('active');
                     difficultySection.style.display = 'block';
-                    this.showMessage(`已切换到人机对战模式！当前难度：${this.getDifficultyName()}，您执黑棋，AI执白棋`);
+                    this.showMessage(`已切换到人机对战模式！当前难度：${this.getDifficultyName()}，您执蓝棋，AI执白棋`);
                 } else {
                     aiBtn.textContent = '🤖 人机对战';
                     aiBtn.classList.remove('active');
