@@ -219,229 +219,58 @@ body {
 
 .partners-logos {
     display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.logo-row {
-    display: flex;
     justify-content: center;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 15px;
 }
 
-.partner-logo {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    padding: 15px 20px;
-    min-width: 120px;
-    height: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    transition: all 0.3s ease;
-    cursor: pointer;
-    border: 2px solid transparent;
+.logo-container {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    padding: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
 }
 
-.partner-logo:hover {
+.logo-container:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-    border-color: #ffd700;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    border-color: rgba(255, 215, 0, 0.3);
 }
 
-/* 各个品牌logo的具体样式 */
-.logo-bf {
-    font-size: 2rem;
-    font-weight: bold;
-    color: #2d3436;
-    background: linear-gradient(45deg, #ff6b6b, #ffd93d);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+.partners-logo-image {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    filter: brightness(1.1) contrast(1.1);
+    transition: all 0.3s ease;
 }
 
-.logo-mall88 {
-    text-align: center;
+.partners-logo-image:hover {
+    filter: brightness(1.2) contrast(1.2);
+    transform: scale(1.02);
 }
 
-.mall88-text-small {
-    font-size: 0.7rem;
-    color: #666;
-    margin-bottom: 2px;
+/* Logo图片的响应式设计 */
+@media (max-width: 768px) {
+    .logo-container {
+        padding: 15px;
+    }
+    
+    .partners-logo-image {
+        max-width: 90%;
+    }
 }
 
-.mall88-text-large {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #d4af37;
-    font-family: 'Arial Black', sans-serif;
-}
-
-.logo-f1h2o {
-    text-align: center;
-}
-
-.f1h2o-main {
-    font-size: 1.4rem;
-    font-weight: bold;
-    color: #e74c3c;
-    margin-bottom: 2px;
-}
-
-.f1h2o-sub {
-    font-size: 0.6rem;
-    color: #666;
-    white-space: nowrap;
-}
-
-.logo-twt {
-    font-size: 1.8rem;
-    font-weight: bold;
-    color: #d4af37;
-}
-
-.logo-moutai {
-    text-align: center;
-}
-
-.moutai-top {
-    font-size: 0.9rem;
-    color: #e74c3c;
-    margin-bottom: 2px;
-}
-
-.moutai-bottom {
-    font-size: 1rem;
-    font-weight: bold;
-    color: #2d3436;
-}
-
-.logo-fpa {
-    text-align: center;
-}
-
-.fpa-text {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #27ae60;
-    margin-bottom: 2px;
-}
-
-.fpa-sub {
-    font-size: 0.6rem;
-    color: #666;
-    white-space: nowrap;
-}
-
-.logo-be {
-    text-align: center;
-}
-
-.be-bird {
-    font-size: 1.5rem;
-    margin-bottom: 5px;
-}
-
-.be-text {
-    font-size: 0.9rem;
-    font-weight: bold;
-    color: #2d3436;
-}
-
-.logo-auswan {
-    text-align: center;
-}
-
-.auswan-swan {
-    font-size: 1.5rem;
-    margin-bottom: 5px;
-}
-
-.auswan-text {
-    font-size: 0.8rem;
-    font-weight: bold;
-    color: #e74c3c;
-}
-
-.logo-laurel {
-    text-align: center;
-}
-
-.laurel-wreath {
-    font-size: 1.5rem;
-    margin-bottom: 5px;
-}
-
-.laurel-text {
-    font-size: 0.9rem;
-    font-weight: bold;
-    color: #d4af37;
-}
-
-.logo-zeekr {
-    text-align: center;
-}
-
-.zeekr-symbol {
-    font-size: 1.5rem;
-    margin-bottom: 5px;
-}
-
-.zeekr-text {
-    font-size: 1rem;
-    font-weight: bold;
-    color: #2d3436;
-}
-
-.logo-ebest {
-    text-align: center;
-}
-
-.ebest-text {
-    font-size: 1.3rem;
-    font-weight: bold;
-    color: #f39c12;
-    margin-bottom: 2px;
-}
-
-.ebest-sub {
-    font-size: 0.6rem;
-    color: #666;
-}
-
-.logo-abc {
-    text-align: center;
-}
-
-.abc-text {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #2d3436;
-    margin-bottom: 2px;
-}
-
-.abc-sub {
-    font-size: 0.6rem;
-    color: #666;
-}
-
-.logo-hero {
-    text-align: center;
-}
-
-.hero-symbol {
-    font-size: 1.5rem;
-    margin-bottom: 5px;
-}
-
-.hero-text {
-    font-size: 0.8rem;
-    font-weight: bold;
-    color: #d4af37;
+@media (max-width: 480px) {
+    .logo-container {
+        padding: 10px;
+    }
+    
+    .partners-logo-image {
+        max-width: 85%;
+    }
 }
 
 /* 底部品牌信息 */
@@ -530,32 +359,6 @@ body {
     .partners-title {
         font-size: 1.4rem;
     }
-    
-    .logo-row {
-        gap: 10px;
-    }
-    
-    .partner-logo {
-        min-width: 100px;
-        height: 70px;
-        padding: 10px 15px;
-    }
-    
-    .logo-bf {
-        font-size: 1.5rem;
-    }
-    
-    .mall88-text-large {
-        font-size: 1rem;
-    }
-    
-    .f1h2o-main {
-        font-size: 1.2rem;
-    }
-    
-    .logo-twt {
-        font-size: 1.5rem;
-    }
 }
 
 @media (max-width: 480px) {
@@ -575,40 +378,6 @@ body {
     /* 超小屏幕的合作伙伴logo样式 */
     .partners-title {
         font-size: 1.2rem;
-    }
-    
-    .logo-row {
-        gap: 8px;
-    }
-    
-    .partner-logo {
-        min-width: 80px;
-        height: 60px;
-        padding: 8px 12px;
-    }
-    
-    .logo-bf {
-        font-size: 1.2rem;
-    }
-    
-    .mall88-text-large {
-        font-size: 0.9rem;
-    }
-    
-    .f1h2o-main {
-        font-size: 1rem;
-    }
-    
-    .logo-twt {
-        font-size: 1.2rem;
-    }
-    
-    .moutai-top {
-        font-size: 0.8rem;
-    }
-    
-    .moutai-bottom {
-        font-size: 0.9rem;
     }
 }
 
