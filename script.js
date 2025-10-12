@@ -49,11 +49,11 @@ class GomokuGame {
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         
         // 绘制背景
-        ctx.fillStyle = '#f8f9fa';
+        ctx.fillStyle = '#1a1a1a';
         ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         
         // 绘制网格线
-        ctx.strokeStyle = '#495057';
+        ctx.strokeStyle = '#666';
         ctx.lineWidth = 2;
         
         // 垂直线
@@ -88,7 +88,7 @@ class GomokuGame {
             [3, 3], [3, 11], [7, 7], [11, 3], [11, 11]
         ];
         
-        ctx.fillStyle = '#495057';
+        ctx.fillStyle = '#666';
         starPoints.forEach(([row, col]) => {
             const x = col * this.cellSize;
             const y = row * this.cellSize;
