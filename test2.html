@@ -379,31 +379,14 @@
             background: #888;
         }
 
-        /* 游戏棋盘容器基础样式 */
-        .game-board-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            margin: 20px auto;
-            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-            border-radius: 15px;
-            border: 2px solid #4a5f7a;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            width: 100%;
-            max-width: 600px;
-            box-sizing: border-box;
-        }
-
-        #game-board {
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            max-width: 100%;
-            max-height: 100%;
-        }
-
-        /* 响应式设计 - 手机屏幕优化 */
+        /* 响应式标题图片 */
         @media (max-width: 768px) {
+            /* 容器调整 */
+            .container {
+                padding: 5px 10px;
+            }
+            
+            /* 标题图片 */
             .title-image {
                 max-width: 90%;
                 max-height: 100px;
@@ -412,62 +395,22 @@
                 padding: 3px 0;
                 margin: -8px 0;
             }
-            
-            /* 游戏棋盘在平板上的调整 */
-            .game-board-container {
-                padding: 15px;
-                margin: 10px auto;
-                width: 95%;
-                max-width: 500px;
-            }
-            
-            #game-board {
-                max-width: 100%;
-                max-height: 100%;
-                width: auto !important;
-                height: auto !important;
-            }
-            
-            /* 游戏控制按钮调整 */
-            .game-controls {
-                flex-direction: column;
-                gap: 10px;
-                padding: 10px;
-            }
-            
-            .btn {
-                width: 100%;
-                max-width: 300px;
-                margin: 5px 0;
-            }
-            
-            /* 抽奖转盘调整 */
             .wheel-container {
                 width: 250px;
                 height: 250px;
             }
-            .lottery-container {
-                padding: 20px;
-                margin: 10px;
-                max-width: 95%;
-            }
             .lottery-title {
-                font-size: 1.5rem;
-            }
-            .wheel-center-button {
-                width: 60px;
-                height: 60px;
-                font-size: 1rem;
-            }
-            .wheel-section {
-                font-size: 0.7rem;
-            }
-            .wheel-icon {
                 font-size: 1.5rem;
             }
         }
 
         @media (max-width: 480px) {
+            /* 容器调整 */
+            .container {
+                padding: 3px 5px;
+            }
+            
+            /* 标题图片 */
             .title-image {
                 max-width: 85%;
                 max-height: 80px;
@@ -476,49 +419,13 @@
                 padding: 2px 0;
                 margin: -5px 0;
             }
-            
-            /* 手机上的游戏棋盘 */
-            .game-board-container {
-                padding: 10px;
-                margin: 5px auto;
-                width: 98%;
-                max-width: 400px;
-            }
-            
-            #game-board {
-                max-width: 100%;
-                max-height: 100%;
-                width: auto !important;
-                height: auto !important;
-            }
-            
-            /* 游戏信息区域调整 */
-            .game-info {
-                padding: 10px;
-                font-size: 0.9rem;
-            }
-            
-            .game-stats {
-                flex-direction: column;
-                gap: 10px;
-                padding: 10px;
-            }
-            
-            /* 难度选择按钮调整 */
-            .difficulty-buttons {
-                flex-direction: column;
-                align-items: center;
-            }
-            .btn-difficulty {
-                width: 80%;
-                max-width: 200px;
-                margin: 5px 0;
-            }
-            
-            /* 抽奖转盘小屏优化 */
             .wheel-container {
-                width: 200px;
-                height: 200px;
+                width: 220px;
+                height: 220px;
+            }
+            .lottery-container {
+                padding: 15px 10px;
+                width: 98%;
             }
             .lottery-container {
                 padding: 15px;
@@ -592,6 +499,48 @@
             }
             
             .lottery-title {
+                font-size: 1.2rem;
+            }
+            .wheel-center-button {
+                width: 55px;
+                height: 55px;
+                font-size: 0.9rem;
+            }
+            .wheel-icon {
+                font-size: 1.3rem;
+            }
+            .wheel-text {
+                font-size: 0.7rem;
+            }
+            .spin-button {
+                padding: 12px 20px;
+                font-size: 1rem;
+            }
+        }
+
+        /* 超小屏幕 (iPhone SE等) */
+        @media (max-width: 375px) {
+            #game-board {
+                max-width: 98vw;
+                max-height: 98vw;
+            }
+            
+            .wheel-container {
+                width: 190px;
+                height: 190px;
+            }
+            
+            .lottery-container {
+                padding: 12px 8px;
+            }
+            
+            .wheel-center-button {
+                width: 50px;
+                height: 50px;
+                font-size: 0.85rem;
+            }
+            
+            .wheel-icon {
                 font-size: 1.2rem;
             }
         }
@@ -1704,31 +1653,16 @@
                 // 如果点击位置距离格子中心太远，不执行落子
                 const maxDistance = this.cellSize * 0.4; // 格子大小的40%作为容差
                 
-                console.log(`Canvas尺寸: ${this.canvas.offsetWidth}x${this.canvas.offsetHeight}`);
-                console.log(`Canvas位置: (${rect.left}, ${rect.top})`);
-                console.log(`点击位置: (${x.toFixed(1)}, ${y.toFixed(1)})`);
-                console.log(`格子大小: ${this.cellSize.toFixed(1)}`);
-                console.log(`计算格子: (${row}, ${col})`);
-                console.log(`格子中心: (${cellCenterX.toFixed(1)}, ${cellCenterY.toFixed(1)})`);
-                console.log(`偏移距离: ${distance.toFixed(1)} (最大: ${maxDistance.toFixed(1)})`);
-                console.log(`是否在范围内: ${row >= 0 && row < this.boardSize && col >= 0 && col < this.boardSize}`);
-                console.log(`距离是否合适: ${distance <= maxDistance}`);
+                // 简化的调试信息
+                console.log(`点击: (${row}, ${col}), 距离: ${distance.toFixed(1)}/${maxDistance.toFixed(1)}, 有效: ${distance <= maxDistance}`);
                 
-                // 显示点击位置的视觉反馈
-                this.showClickFeedback(x, y, row, col, distance <= maxDistance);
+                // 移除调试反馈，直接处理落子
+                // this.showClickFeedback(x, y, row, col, distance <= maxDistance);
                 
                 if (row >= 0 && row < this.boardSize && col >= 0 && col < this.boardSize && distance <= maxDistance) {
-                    console.log(`尝试落子到 (${row}, ${col})`);
                     if (this.makeMove(row, col)) {
                         this.drawBoard();
-                        console.log(`✅ 成功落子到 (${row}, ${col})`);
-                    } else {
-                        console.log(`❌ 落子失败到 (${row}, ${col}) - 可能位置已有棋子`);
                     }
-                } else if (distance > maxDistance) {
-                    console.log(`❌ 点击位置距离格子中心太远，忽略此次点击`);
-                } else {
-                    console.log(`❌ 点击超出棋盘范围: (${row}, ${col})`);
                 }
             }
 
