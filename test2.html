@@ -410,6 +410,22 @@
                 padding: 3px 5px;
             }
             
+            /* 棋盘容器在手机上铺满宽度 */
+            .game-board-container {
+                padding: 5px;
+                margin: 0 auto;
+                width: 100%;
+                max-width: none;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            
+            #game-board {
+                display: block;
+                margin: 0 auto;
+            }
+            
             /* 标题图片 */
             .title-image {
                 max-width: 85%;
@@ -474,13 +490,18 @@
         /* 超小屏幕优化 (iPhone SE等) */
         @media (max-width: 375px) {
             .game-board-container {
-                padding: 8px;
-                margin: 3px auto;
-                width: 99%;
-                max-width: 350px;
+                padding: 5px;
+                margin: 0 auto;
+                width: 100%;
+                max-width: none;
+                display: flex;
+                justify-content: center;
+                align-items: center;
             }
             
             #game-board {
+                display: block;
+                margin: 0 auto;
                 max-width: 100%;
                 max-height: 100%;
                 width: auto !important;
@@ -858,16 +879,41 @@
                 const container = this.canvas.parentElement;
                 const containerWidth = container.clientWidth;
                 
-                // 考虑容器的padding，减去40px（左右各20px）
-                const availableWidth = containerWidth - 40;
+                // 检测是否为手机设备
+                const isMobile = window.innerWidth <= 768;
                 
-                // 计算合适的尺寸（保持正方形，确保不超出屏幕）
-                const maxSize = Math.min(availableWidth, window.innerWidth * 0.85, window.innerHeight * 0.5);
-                const canvasSize = Math.floor(maxSize / this.boardSize) * this.boardSize;
+                let availableWidth, maxSize, canvasSize, finalSize;
                 
-                // 确保最小尺寸
-                const minSize = this.boardSize * 20; // 每个格子至少20px
-                const finalSize = Math.max(canvasSize, minSize);
+                if (isMobile) {
+                    // 手机模式：使用屏幕宽度，但保持正方形比例
+                    availableWidth = window.innerWidth - 20; // 左右各10px边距
+                    
+                    // 计算最大可能的正方形尺寸
+                    const maxWidth = availableWidth;
+                    const maxHeight = window.innerHeight * 0.6; // 限制高度，为其他元素留空间
+                    
+                    // 取较小的值作为最大尺寸，确保是正方形
+                    maxSize = Math.min(maxWidth, maxHeight);
+                    
+                    // 向下取整到棋盘大小的倍数，确保格子对齐
+                    canvasSize = Math.floor(maxSize / this.boardSize) * this.boardSize;
+                    
+                    // 确保最小尺寸
+                    const minSize = this.boardSize * 20; // 每个格子至少20px
+                    finalSize = Math.max(canvasSize, minSize);
+                    
+                    console.log(`手机模式 - 屏幕: ${window.innerWidth}x${window.innerHeight}, 可用: ${availableWidth}, 最大: ${maxSize}, 最终: ${finalSize}, 格子: ${(finalSize/this.boardSize).toFixed(1)}px`);
+                } else {
+                    // 桌面模式：保持原有逻辑
+                    availableWidth = containerWidth - 40;
+                    maxSize = Math.min(availableWidth, window.innerWidth * 0.85, window.innerHeight * 0.5);
+                    canvasSize = Math.floor(maxSize / this.boardSize) * this.boardSize;
+                    
+                    const minSize = this.boardSize * 20;
+                    finalSize = Math.max(canvasSize, minSize);
+                    
+                    console.log(`桌面模式 - 容器宽度: ${containerWidth}, 可用宽度: ${availableWidth}, 最终尺寸: ${finalSize}`);
+                }
                 
                 this.cellSize = finalSize / this.boardSize;
                 
@@ -1695,11 +1741,14 @@
                 const offsetY = y - cellCenterY;
                 const distance = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
                 
-                // 如果点击位置距离格子中心太远，不执行落子
-                const maxDistance = this.cellSize * 0.8; // 格子大小的80%作为容差，非常宽松
+                // 检测是否为手机设备，手机使用更大的容错率
+                const isMobile = window.innerWidth <= 768;
+                const maxDistance = isMobile ? 
+                    this.cellSize * 0.85 : // 手机：85%容错率，保持合理精度
+                    this.cellSize * 0.8;   // 桌面：80%容错率
                 
-                // 简化的调试信息
-                console.log(`点击: (${row}, ${col}), 距离: ${distance.toFixed(1)}/${maxDistance.toFixed(1)}, 有效: ${distance <= maxDistance}`);
+                // 详细的调试信息
+                console.log(`手机模式: ${isMobile}, 格子大小: ${this.cellSize.toFixed(1)}, 点击: (${row}, ${col}), 距离: ${distance.toFixed(1)}/${maxDistance.toFixed(1)}, 有效: ${distance <= maxDistance}`);
                 
                 // 移除调试反馈，直接处理落子
                 // this.showClickFeedback(x, y, row, col, distance <= maxDistance);
