@@ -379,7 +379,30 @@
             background: #888;
         }
 
-        /* 响应式标题图片 */
+        /* 游戏棋盘容器基础样式 */
+        .game-board-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            margin: 20px auto;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            border-radius: 15px;
+            border: 2px solid #4a5f7a;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 600px;
+            box-sizing: border-box;
+        }
+
+        #game-board {
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        /* 响应式设计 - 手机屏幕优化 */
         @media (max-width: 768px) {
             .title-image {
                 max-width: 90%;
@@ -389,11 +412,57 @@
                 padding: 3px 0;
                 margin: -8px 0;
             }
+            
+            /* 游戏棋盘在平板上的调整 */
+            .game-board-container {
+                padding: 15px;
+                margin: 10px auto;
+                width: 95%;
+                max-width: 500px;
+            }
+            
+            #game-board {
+                max-width: 100%;
+                max-height: 100%;
+                width: auto !important;
+                height: auto !important;
+            }
+            
+            /* 游戏控制按钮调整 */
+            .game-controls {
+                flex-direction: column;
+                gap: 10px;
+                padding: 10px;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+                margin: 5px 0;
+            }
+            
+            /* 抽奖转盘调整 */
             .wheel-container {
                 width: 250px;
                 height: 250px;
             }
+            .lottery-container {
+                padding: 20px;
+                margin: 10px;
+                max-width: 95%;
+            }
             .lottery-title {
+                font-size: 1.5rem;
+            }
+            .wheel-center-button {
+                width: 60px;
+                height: 60px;
+                font-size: 1rem;
+            }
+            .wheel-section {
+                font-size: 0.7rem;
+            }
+            .wheel-icon {
                 font-size: 1.5rem;
             }
         }
@@ -407,12 +476,123 @@
                 padding: 2px 0;
                 margin: -5px 0;
             }
+            
+            /* 手机上的游戏棋盘 */
+            .game-board-container {
+                padding: 10px;
+                margin: 5px auto;
+                width: 98%;
+                max-width: 400px;
+            }
+            
+            #game-board {
+                max-width: 100%;
+                max-height: 100%;
+                width: auto !important;
+                height: auto !important;
+            }
+            
+            /* 游戏信息区域调整 */
+            .game-info {
+                padding: 10px;
+                font-size: 0.9rem;
+            }
+            
+            .game-stats {
+                flex-direction: column;
+                gap: 10px;
+                padding: 10px;
+            }
+            
+            /* 难度选择按钮调整 */
+            .difficulty-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            .btn-difficulty {
+                width: 80%;
+                max-width: 200px;
+                margin: 5px 0;
+            }
+            
+            /* 抽奖转盘小屏优化 */
             .wheel-container {
                 width: 200px;
                 height: 200px;
             }
+            .lottery-container {
+                padding: 15px;
+                margin: 5px;
+                max-width: 98%;
+            }
             .lottery-title {
                 font-size: 1.3rem;
+                margin-bottom: 15px;
+            }
+            .wheel-center-button {
+                width: 50px;
+                height: 50px;
+                font-size: 0.9rem;
+            }
+            .wheel-section {
+                font-size: 0.6rem;
+            }
+            .wheel-icon {
+                font-size: 1.2rem;
+                margin-bottom: 2px;
+            }
+            .wheel-text {
+                font-size: 0.7rem;
+            }
+            .wheel-pointer {
+                border-left: 15px solid transparent;
+                border-right: 15px solid transparent;
+                border-top: 30px solid #e74c3c;
+                top: -12px;
+            }
+            
+            /* 按钮文字调整 */
+            .spin-button {
+                padding: 12px 20px;
+                font-size: 1rem;
+            }
+            
+            /* 奖品结果显示调整 */
+            .prize-result {
+                padding: 15px;
+                font-size: 1.1rem;
+            }
+        }
+
+        /* 超小屏幕优化 (iPhone SE等) */
+        @media (max-width: 375px) {
+            .game-board-container {
+                padding: 8px;
+                margin: 3px auto;
+                width: 99%;
+                max-width: 350px;
+            }
+            
+            #game-board {
+                max-width: 100%;
+                max-height: 100%;
+                width: auto !important;
+                height: auto !important;
+            }
+            
+            .wheel-container {
+                width: 180px;
+                height: 180px;
+            }
+            
+            .wheel-center-button {
+                width: 45px;
+                height: 45px;
+                font-size: 0.8rem;
+            }
+            
+            .lottery-title {
+                font-size: 1.2rem;
             }
         }
     </style>
@@ -438,7 +618,7 @@
 
         <!-- 五子棋棋盘 -->
         <div class="game-board-container">
-            <canvas id="game-board" width="600" height="600"></canvas>
+            <canvas id="game-board"></canvas>
         </div>
 
         <!-- 游戏控制按钮 -->
@@ -696,30 +876,50 @@
                     return;
                 }
                 
-                const devicePixelRatio = window.devicePixelRatio || 1;
-                
-                this.canvas.width = this.boardSize * this.cellSize * devicePixelRatio;
-                this.canvas.height = this.boardSize * this.cellSize * devicePixelRatio;
-                
-                this.canvas.style.width = (this.boardSize * this.cellSize) + 'px';
-                this.canvas.style.height = (this.boardSize * this.cellSize) + 'px';
-                
-                this.ctx.scale(devicePixelRatio, devicePixelRatio);
+                this.resizeCanvas();
+                window.addEventListener('resize', () => this.resizeCanvas());
                 
                 this.ctx.imageSmoothingEnabled = true;
                 this.ctx.imageSmoothingQuality = 'high';
                 
-                console.log(`Canvas尺寸: ${this.canvas.width}x${this.canvas.height} (像素比: ${devicePixelRatio})`);
-                
                 this.drawBoard();
+            }
+
+            resizeCanvas() {
+                const container = this.canvas.parentElement;
+                const containerWidth = container.clientWidth;
+                
+                // 考虑容器的padding，减去40px（左右各20px）
+                const availableWidth = containerWidth - 40;
+                
+                // 计算合适的尺寸（保持正方形，确保不超出屏幕）
+                const maxSize = Math.min(availableWidth, window.innerWidth * 0.85, window.innerHeight * 0.5);
+                const canvasSize = Math.floor(maxSize / this.boardSize) * this.boardSize;
+                
+                this.cellSize = canvasSize / this.boardSize;
+                
+                // 对于高分辨率屏幕，保持1:1的像素比以避免坐标问题
+                const devicePixelRatio = 1; // 强制使用1:1像素比
+                
+                this.canvas.width = canvasSize;
+                this.canvas.height = canvasSize;
+                
+                this.canvas.style.width = canvasSize + 'px';
+                this.canvas.style.height = canvasSize + 'px';
+                
+                // 不进行缩放，直接使用原始尺寸
+                this.ctx.scale(1, 1);
+                
+                console.log(`Canvas尺寸: ${canvasSize}x${canvasSize} (容器宽度: ${containerWidth}, 可用宽度: ${availableWidth}, 格子大小: ${this.cellSize.toFixed(2)})`);
             }
 
             drawBoard() {
                 const ctx = this.ctx;
-                ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                const canvasSize = this.boardSize * this.cellSize;
+                ctx.clearRect(0, 0, canvasSize, canvasSize);
                 
                 ctx.fillStyle = '#1a1a1a';
-                ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                ctx.fillRect(0, 0, canvasSize, canvasSize);
                 
                 ctx.strokeStyle = '#666';
                 ctx.lineWidth = 1.5;
@@ -728,12 +928,12 @@
                     const pos = i * this.cellSize;
                     ctx.beginPath();
                     ctx.moveTo(pos, 0);
-                    ctx.lineTo(pos, this.canvas.height);
+                    ctx.lineTo(pos, canvasSize);
                     ctx.stroke();
                     
                     ctx.beginPath();
                     ctx.moveTo(0, pos);
-                    ctx.lineTo(this.canvas.width, pos);
+                    ctx.lineTo(canvasSize, pos);
                     ctx.stroke();
                 }
                 
@@ -1411,25 +1611,29 @@
             }
 
             setupEventListeners() {
+                // 处理鼠标点击事件
                 this.canvas.addEventListener('click', (event) => {
                     if (this.aiMode && this.currentPlayer === this.aiPlayer) {
                         return;
                     }
-                    
-                    const rect = this.canvas.getBoundingClientRect();
-                    const x = event.clientX - rect.left;
-                    const y = event.clientY - rect.top;
-                    
-                    const col = Math.round(x / this.cellSize);
-                    const row = Math.round(y / this.cellSize);
-                    
-                    if (row >= 0 && row < this.boardSize && col >= 0 && col < this.boardSize) {
-                        if (this.makeMove(row, col)) {
-                            this.drawBoard();
-                        }
-                    }
+                    this.handleBoardClick(event);
                 });
 
+                // 处理触摸事件（移动端）
+                this.canvas.addEventListener('touchstart', (event) => {
+                    event.preventDefault(); // 防止页面滚动
+                    if (this.aiMode && this.currentPlayer === this.aiPlayer) {
+                        return;
+                    }
+                    this.handleBoardClick(event.touches[0]);
+                });
+
+                // 防止触摸时的默认行为
+                this.canvas.addEventListener('touchend', (event) => {
+                    event.preventDefault();
+                });
+
+                // 添加其他事件监听器
                 document.getElementById('restart-btn').addEventListener('click', () => {
                     this.restart();
                 });
@@ -1477,6 +1681,87 @@
                             break;
                     }
                 });
+            }
+
+            handleBoardClick(event) {
+                const rect = this.canvas.getBoundingClientRect();
+                
+                // 获取相对于Canvas的点击位置
+                const x = event.clientX - rect.left;
+                const y = event.clientY - rect.top;
+                
+                // 使用更精确的格子位置计算
+                const col = Math.floor(x / this.cellSize + 0.5);
+                const row = Math.floor(y / this.cellSize + 0.5);
+                
+                // 计算点击位置相对于格子中心的偏移
+                const cellCenterX = col * this.cellSize + this.cellSize / 2;
+                const cellCenterY = row * this.cellSize + this.cellSize / 2;
+                const offsetX = x - cellCenterX;
+                const offsetY = y - cellCenterY;
+                const distance = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
+                
+                // 如果点击位置距离格子中心太远，不执行落子
+                const maxDistance = this.cellSize * 0.4; // 格子大小的40%作为容差
+                
+                console.log(`Canvas尺寸: ${this.canvas.offsetWidth}x${this.canvas.offsetHeight}`);
+                console.log(`Canvas位置: (${rect.left}, ${rect.top})`);
+                console.log(`点击位置: (${x.toFixed(1)}, ${y.toFixed(1)})`);
+                console.log(`格子大小: ${this.cellSize.toFixed(1)}`);
+                console.log(`计算格子: (${row}, ${col})`);
+                console.log(`格子中心: (${cellCenterX.toFixed(1)}, ${cellCenterY.toFixed(1)})`);
+                console.log(`偏移距离: ${distance.toFixed(1)} (最大: ${maxDistance.toFixed(1)})`);
+                console.log(`是否在范围内: ${row >= 0 && row < this.boardSize && col >= 0 && col < this.boardSize}`);
+                console.log(`距离是否合适: ${distance <= maxDistance}`);
+                
+                // 显示点击位置的视觉反馈
+                this.showClickFeedback(x, y, row, col, distance <= maxDistance);
+                
+                if (row >= 0 && row < this.boardSize && col >= 0 && col < this.boardSize && distance <= maxDistance) {
+                    console.log(`尝试落子到 (${row}, ${col})`);
+                    if (this.makeMove(row, col)) {
+                        this.drawBoard();
+                        console.log(`✅ 成功落子到 (${row}, ${col})`);
+                    } else {
+                        console.log(`❌ 落子失败到 (${row}, ${col}) - 可能位置已有棋子`);
+                    }
+                } else if (distance > maxDistance) {
+                    console.log(`❌ 点击位置距离格子中心太远，忽略此次点击`);
+                } else {
+                    console.log(`❌ 点击超出棋盘范围: (${row}, ${col})`);
+                }
+            }
+
+            showClickFeedback(x, y, row, col, isValid) {
+                // 在点击位置绘制反馈圆圈
+                const ctx = this.ctx;
+                ctx.save();
+                
+                // 根据点击是否有效显示不同颜色
+                ctx.strokeStyle = isValid ? 'green' : 'red';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(x, y, 12, 0, 2 * Math.PI);
+                ctx.stroke();
+                
+                // 如果点击有效，在格子中心也绘制一个圆圈
+                if (isValid) {
+                    const cellCenterX = col * this.cellSize + this.cellSize / 2;
+                    const cellCenterY = row * this.cellSize + this.cellSize / 2;
+                    
+                    ctx.strokeStyle = 'blue';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(cellCenterX, cellCenterY, 8, 0, 2 * Math.PI);
+                    ctx.stroke();
+                }
+                
+                ctx.restore();
+                
+                // 0.8秒后清除反馈
+                setTimeout(() => {
+                    this.drawBoard();
+                }, 800);
             }
         }
 
