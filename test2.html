@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>面膜五子棋 - 测试版</title>
+    <title>面膜五子棋 - 抽奖版</title>
     <link rel="stylesheet" href="style.css">
     <style>
         /* 添加难度选择区域的样式 */
@@ -123,8 +123,8 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 5px 0; /* 从20px减少到5px，让页面更紧凑 */
-            margin: -10px 0; /* 负边距进一步减少空间 */
+            padding: 5px 0;
+            margin: -10px 0;
         }
 
         .title-image {
@@ -138,8 +138,8 @@
             transition: all 0.3s ease;
             border-radius: 10px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            object-fit: cover; /* 裁剪图片以适应容器 */
-            max-height: 120px; /* 限制最大高度，减少黑边 */
+            object-fit: cover;
+            max-height: 120px;
         }
 
         .title-image:hover {
@@ -150,33 +150,269 @@
 
         /* 紧凑页面样式 */
         .header {
-            margin-bottom: 10px; /* 减少header底部边距 */
+            margin-bottom: 10px;
         }
 
         .container {
-            padding: 10px 20px; /* 减少容器内边距 */
+            padding: 10px 20px;
+        }
+
+        /* 大转盘抽奖样式 */
+        .lottery-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            backdrop-filter: blur(10px);
+        }
+
+        .lottery-container {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 2px solid #ffd700;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .lottery-title {
+            color: #ffd700;
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .wheel-container {
+            position: relative;
+            width: 350px;
+            height: 350px;
+            margin: 20px auto;
+        }
+
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: relative;
+            transition: transform 3s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+            border: 12px solid #e74c3c;
+            box-shadow: 0 0 20px rgba(231, 76, 60, 0.3);
+            background: #f1c40f;
+            background-image: radial-gradient(circle, #f7dc6f 2px, transparent 2px);
+            background-size: 20px 20px;
+        }
+
+        .wheel-section {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: 100% 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1rem;
+            color: #fff;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+            border-right: 3px solid #e74c3c;
+            background: #f1c40f;
+        }
+
+        .wheel-section:last-child {
+            border-right: none;
+        }
+
+        .wheel-section:nth-child(1) {
+            background: #ff6b6b;
+        }
+
+        .wheel-section:nth-child(2) {
+            background: #4ecdc4;
+        }
+
+        .wheel-section:nth-child(3) {
+            background: #45b7d1;
+        }
+
+        .wheel-section:nth-child(4) {
+            background: #96ceb4;
+        }
+
+        .wheel-section:nth-child(5) {
+            background: #feca57;
+        }
+
+        .wheel-section:nth-child(6) {
+            background: #ff9ff3;
+        }
+
+        .wheel-icon {
+            font-size: 2rem;
+            margin-bottom: 5px;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        .wheel-text {
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #fff;
+            text-align: center;
+            line-height: 1.2;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 40px solid #e74c3c;
+            z-index: 10;
+            filter: drop-shadow(0 0 10px rgba(231, 76, 60, 0.5));
+        }
+
+        .wheel-center-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background: #e74c3c;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 15;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+            border: 3px solid #c0392b;
+        }
+
+        .wheel-center-button:hover {
+            background: #c0392b;
+            transform: translate(-50%, -50%) scale(1.05);
+        }
+
+        .spin-button {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            margin: 20px 0;
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .spin-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.6);
+        }
+
+        .spin-button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .prize-result {
+            margin-top: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            border-radius: 15px;
+            color: white;
+            font-size: 1.3rem;
+            font-weight: bold;
+            display: none;
+            animation: prizeReveal 0.8s ease-out;
+        }
+
+        @keyframes prizeReveal {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .close-lottery {
+            background: #666;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .close-lottery:hover {
+            background: #888;
         }
 
         /* 响应式标题图片 */
         @media (max-width: 768px) {
             .title-image {
                 max-width: 90%;
-                max-height: 100px; /* 移动端进一步减少高度 */
+                max-height: 100px;
             }
             .title-image-container {
                 padding: 3px 0;
                 margin: -8px 0;
+            }
+            .wheel-container {
+                width: 250px;
+                height: 250px;
+            }
+            .lottery-title {
+                font-size: 1.5rem;
             }
         }
 
         @media (max-width: 480px) {
             .title-image {
                 max-width: 85%;
-                max-height: 80px; /* 小屏幕进一步减少高度 */
+                max-height: 80px;
             }
             .title-image-container {
                 padding: 2px 0;
                 margin: -5px 0;
+            }
+            .wheel-container {
+                width: 200px;
+                height: 200px;
+            }
+            .lottery-title {
+                font-size: 1.3rem;
             }
         }
     </style>
@@ -186,7 +422,7 @@
         <!-- 头部标题 -->
         <header class="header">
             <div class="title-image-container">
-                <img src="title.png" alt="面膜五子棋 - BF Gomoku 测试版" class="title-image">
+                <img src="title.png" alt="面膜五子棋 - BF Gomoku 抽奖版" class="title-image">
             </div>
         </header>
 
@@ -246,7 +482,6 @@
         <div class="partners-section">
             <h3 class="partners-title">合作伙伴</h3>
             <div class="partners-logos">
-                <!-- 使用上传的logo.png文件 -->
                 <div class="logo-container">
                     <img src="logo.png" alt="合作伙伴Logo" class="partners-logo-image">
                 </div>
@@ -265,9 +500,33 @@
         </footer>
     </div>
 
+    <!-- 大转盘抽奖弹窗 -->
+    <div class="lottery-modal" id="lottery-modal">
+        <div class="lottery-container">
+            <h2 class="lottery-title">🎉 恭喜获胜！🎉</h2>
+            <p style="color: #fff; margin-bottom: 20px;">转动转盘，赢取精美奖品！</p>
+            
+            <div class="wheel-container">
+                <div class="wheel-pointer"></div>
+                <div class="wheel" id="lottery-wheel">
+                    <!-- 转盘扇形区域将通过JavaScript动态生成 -->
+                </div>
+                <div class="wheel-center-button" id="center-button">抽奖</div>
+            </div>
+            
+            <button class="spin-button" id="spin-button">🎯 开始抽奖</button>
+            
+            <div class="prize-result" id="prize-result">
+                <div id="prize-text"></div>
+            </div>
+            
+            <button class="close-lottery" id="close-lottery">关闭</button>
+        </div>
+    </div>
+
     <script>
-        // 简化的五子棋游戏类
-        class SimpleGomoku {
+        // 五子棋游戏类（基于test1.html，添加抽奖功能）
+        class GomokuWithLottery {
             constructor() {
                 this.boardSize = 15;
                 this.cellSize = 40;
@@ -283,8 +542,18 @@
                     whiteWins: 0,
                     draws: 0
                 };
-                this.pieceImage = null; // 存储黑棋图案（面膜）
-                this.whitePieceImage = null; // 存储白棋图案（BF Logo）
+                this.pieceImage = null;
+                this.whitePieceImage = null;
+                
+                // 奖品配置 - 可以在这里修改奖项
+                this.prizes = [
+                    { name: 'BF提拉面膜', icon: '🧴', color: '#ff6b6b', probability: 0.1 },
+                    { name: 'BF补水面膜', icon: '💧', color: '#4ecdc4', probability: 0.15 },
+                    { name: '天鹅庄红酒', icon: '🍷', color: '#45b7d1', probability: 0.2 },
+                    { name: 'TWT艺术礼包', icon: '🎨', color: '#96ceb4', probability: 0.25 },
+                    { name: 'BE鸡腿', icon: '🍗', color: '#feca57', probability: 0.2 },
+                    { name: '极氪009使用权一周', icon: '🚗', color: '#ff9ff3', probability: 0.1 }
+                ];
                 
                 console.log('初始化游戏...');
                 this.loadPieceImages();
@@ -293,21 +562,14 @@
                 this.setupEventListeners();
                 this.loadStats();
                 this.updateDisplay();
+                this.setupLottery();
                 console.log('游戏初始化完成');
             }
 
             loadPieceImages() {
                 // 加载黑棋图案（面膜）
                 this.pieceImage = new Image();
-                
-                // 尝试加载多种可能的黑棋图片文件名
-                const blackPieceFiles = [
-                    'mask-piece.png',
-                    'mask.png', 
-                    'piece.png',
-                    'face-mask.png'
-                ];
-                
+                const blackPieceFiles = ['mask-piece.png', 'mask.png', 'piece.png', 'face-mask.png'];
                 let blackIndex = 0;
                 
                 const tryLoadBlackImage = () => {
@@ -334,15 +596,7 @@
                 
                 // 加载白棋图案（BF Logo）
                 this.whitePieceImage = new Image();
-                
-                // 尝试加载多种可能的白棋图片文件名
-                const whitePieceFiles = [
-                    'bf-logo.png',
-                    'bf.png',
-                    'logo-white.png',
-                    'white-piece.png'
-                ];
-                
+                const whitePieceFiles = ['bf-logo.png', 'bf.png', 'logo-white.png', 'white-piece.png'];
                 let whiteIndex = 0;
                 
                 const tryLoadWhiteImage = () => {
@@ -368,18 +622,15 @@
             }
 
             createFallbackPattern() {
-                // 创建备用图案
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 canvas.width = 80;
                 canvas.height = 80;
                 
-                // 绘制简单的面膜图案作为备用
                 const centerX = 40;
                 const centerY = 40;
                 const radius = 35;
                 
-                // 背景圆形
                 const gradient = ctx.createRadialGradient(
                     centerX - 15, centerY - 15, 0,
                     centerX, centerY, radius
@@ -395,19 +646,16 @@
                 ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
                 ctx.fill();
                 
-                // 绘制人脸轮廓
                 ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
                 ctx.lineWidth = 2;
                 ctx.beginPath();
                 
-                // 简化的脸部轮廓
-                ctx.arc(centerX - 5, centerY - 8, 3, 0, 2 * Math.PI); // 鼻子
+                ctx.arc(centerX - 5, centerY - 8, 3, 0, 2 * Math.PI);
                 ctx.moveTo(centerX - 8, centerY + 5);
-                ctx.quadraticCurveTo(centerX, centerY + 8, centerX + 8, centerY + 5); // 嘴巴
+                ctx.quadraticCurveTo(centerX, centerY + 8, centerX + 8, centerY + 5);
                 
                 ctx.stroke();
                 
-                // 能量线条
                 ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
                 ctx.lineWidth = 1;
                 for (let i = 0; i < 3; i++) {
@@ -448,27 +696,20 @@
                     return;
                 }
                 
-                // 设置高分辨率Canvas
                 const devicePixelRatio = window.devicePixelRatio || 1;
-                const rect = this.canvas.getBoundingClientRect();
                 
-                // 设置Canvas的实际尺寸（高分辨率）
                 this.canvas.width = this.boardSize * this.cellSize * devicePixelRatio;
                 this.canvas.height = this.boardSize * this.cellSize * devicePixelRatio;
                 
-                // 设置Canvas的显示尺寸
                 this.canvas.style.width = (this.boardSize * this.cellSize) + 'px';
                 this.canvas.style.height = (this.boardSize * this.cellSize) + 'px';
                 
-                // 缩放上下文以匹配设备像素比
                 this.ctx.scale(devicePixelRatio, devicePixelRatio);
                 
-                // 启用高质量渲染
                 this.ctx.imageSmoothingEnabled = true;
                 this.ctx.imageSmoothingQuality = 'high';
                 
                 console.log(`Canvas尺寸: ${this.canvas.width}x${this.canvas.height} (像素比: ${devicePixelRatio})`);
-                console.log(`Canvas显示尺寸: ${this.canvas.style.width}x${this.canvas.style.height}`);
                 
                 this.drawBoard();
             }
@@ -477,13 +718,11 @@
                 const ctx = this.ctx;
                 ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
                 
-                // 背景
                 ctx.fillStyle = '#1a1a1a';
                 ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
                 
-                // 网格线
                 ctx.strokeStyle = '#666';
-                ctx.lineWidth = 1.5; // 稍微加粗网格线
+                ctx.lineWidth = 1.5;
                 
                 for (let i = 0; i <= this.boardSize; i++) {
                     const pos = i * this.cellSize;
@@ -498,18 +737,16 @@
                     ctx.stroke();
                 }
                 
-                // 天元和星位
                 const starPoints = [[3, 3], [3, 11], [7, 7], [11, 3], [11, 11]];
                 ctx.fillStyle = '#666';
                 starPoints.forEach(([row, col]) => {
                     const x = col * this.cellSize;
                     const y = row * this.cellSize;
                     ctx.beginPath();
-                    ctx.arc(x, y, 5, 0, 2 * Math.PI); // 从4增加到5
+                    ctx.arc(x, y, 5, 0, 2 * Math.PI);
                     ctx.fill();
                 });
                 
-                // 绘制棋子
                 for (let row = 0; row < this.boardSize; row++) {
                     for (let col = 0; col < this.boardSize; col++) {
                         if (this.board[row][col] !== 0) {
@@ -523,26 +760,20 @@
                 const ctx = this.ctx;
                 const x = col * this.cellSize;
                 const y = row * this.cellSize;
-                const radius = this.cellSize * 0.52; // 最大尺寸0.52，棋子最大最清晰
+                const radius = this.cellSize * 0.52;
                 
                 if (player === 1) {
-                    // 使用面膜图案
                     if (this.pieceImage) {
-                        // 保存当前上下文状态
                         ctx.save();
-                        
-                        // 启用高质量图像渲染
                         ctx.imageSmoothingEnabled = true;
                         ctx.imageSmoothingQuality = 'high';
                         
-                        // 添加阴影效果（在裁剪前添加）
                         ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
                         ctx.shadowBlur = 4;
                         ctx.shadowOffsetX = 2;
                         ctx.shadowOffsetY = 2;
                         
-                        // 绘制完整的正方形图案，不进行圆形裁剪
-                        const imageSize = radius * 2; // 完整的棋子尺寸
+                        const imageSize = radius * 2;
                         
                         ctx.drawImage(
                             this.pieceImage,
@@ -552,10 +783,8 @@
                             imageSize
                         );
                         
-                        // 恢复上下文状态
                         ctx.restore();
                         
-                        // 如果需要圆形边界，在图案上方绘制一个圆形边框
                         ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
                         ctx.lineWidth = 1;
                         ctx.beginPath();
@@ -563,7 +792,6 @@
                         ctx.stroke();
                         
                     } else {
-                        // 如果图案还没加载，使用备用样式
                         const gradient = ctx.createRadialGradient(
                             x - radius * 0.2, y - radius * 0.2, 0,
                             x, y, radius
@@ -580,22 +808,16 @@
                     }
                     
                 } else {
-                    // 白棋使用BF Logo图案
                     if (this.whitePieceImage) {
-                        // 保存当前上下文状态
                         ctx.save();
-                        
-                        // 启用高质量图像渲染
                         ctx.imageSmoothingEnabled = true;
                         ctx.imageSmoothingQuality = 'high';
                         
-                        // 添加阴影效果
                         ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
                         ctx.shadowBlur = 4;
                         ctx.shadowOffsetX = 2;
                         ctx.shadowOffsetY = 2;
                         
-                        // 绘制完整的正方形图案
                         const imageSize = radius * 2;
                         
                         ctx.drawImage(
@@ -606,10 +828,8 @@
                             imageSize
                         );
                         
-                        // 恢复上下文状态
                         ctx.restore();
                         
-                        // 添加圆形边框
                         ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
                         ctx.lineWidth = 1;
                         ctx.beginPath();
@@ -617,7 +837,6 @@
                         ctx.stroke();
                         
                     } else {
-                        // 如果图案还没加载，使用备用样式
                         const gradient = ctx.createRadialGradient(
                             x - radius * 0.3, y - radius * 0.3, 0,
                             x, y, radius
@@ -861,6 +1080,11 @@
                 }
                 this.saveStats();
                 this.updateStats();
+                
+                // 获胜后显示抽奖转盘
+                setTimeout(() => {
+                    this.showLottery();
+                }, 2000);
             }
 
             handleDraw() {
@@ -1034,6 +1258,158 @@
                 this.showMessage(`AI难度已切换到：${this.getDifficultyName()}`);
             }
 
+            // 抽奖相关方法
+            setupLottery() {
+                this.createWheel();
+                this.setupLotteryEvents();
+            }
+
+            createWheel() {
+                const wheel = document.getElementById('lottery-wheel');
+                wheel.innerHTML = '';
+                
+                const sectionAngle = 360 / this.prizes.length;
+                
+                this.prizes.forEach((prize, index) => {
+                    const section = document.createElement('div');
+                    section.className = 'wheel-section';
+                    section.style.transform = `rotate(${index * sectionAngle}deg)`;
+                    section.style.clipPath = `polygon(0 0, 100% 0, 50% 100%)`;
+                    section.style.backgroundColor = prize.color; // 设置每个区域的颜色
+                    
+                    // 创建图标和文字
+                    const icon = document.createElement('div');
+                    icon.className = 'wheel-icon';
+                    icon.textContent = prize.icon;
+                    
+                    const text = document.createElement('div');
+                    text.className = 'wheel-text';
+                    text.textContent = prize.name;
+                    
+                    section.appendChild(icon);
+                    section.appendChild(text);
+                    wheel.appendChild(section);
+                });
+            }
+
+            setupLotteryEvents() {
+                const spinButton = document.getElementById('spin-button');
+                const centerButton = document.getElementById('center-button');
+                const closeButton = document.getElementById('close-lottery');
+                const modal = document.getElementById('lottery-modal');
+                
+                const spinAction = () => {
+                    this.spinWheel();
+                };
+                
+                spinButton.addEventListener('click', spinAction);
+                centerButton.addEventListener('click', spinAction);
+                
+                closeButton.addEventListener('click', () => {
+                    this.hideLottery();
+                });
+                
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        this.hideLottery();
+                    }
+                });
+            }
+
+            showLottery() {
+                const modal = document.getElementById('lottery-modal');
+                const prizeResult = document.getElementById('prize-result');
+                const spinButton = document.getElementById('spin-button');
+                
+                modal.style.display = 'flex';
+                prizeResult.style.display = 'none';
+                spinButton.disabled = false;
+                spinButton.textContent = '🎯 开始抽奖';
+                
+                // 重置转盘
+                const wheel = document.getElementById('lottery-wheel');
+                wheel.style.transform = 'rotate(0deg)';
+            }
+
+            hideLottery() {
+                const modal = document.getElementById('lottery-modal');
+                modal.style.display = 'none';
+            }
+
+            spinWheel() {
+                const wheel = document.getElementById('lottery-wheel');
+                const spinButton = document.getElementById('spin-button');
+                const prizeResult = document.getElementById('prize-result');
+                
+                spinButton.disabled = true;
+                spinButton.textContent = '🎯 抽奖中...';
+                
+                // 先随机选择奖品
+                const selectedPrize = this.selectRandomPrize();
+                const selectedIndex = this.prizes.indexOf(selectedPrize);
+                
+                // 计算转盘应该停止的角度
+                const sectionAngle = 360 / this.prizes.length;
+                
+                // 计算指针指向12点钟位置时，对应奖品的角度
+                // 指针在12点钟位置，我们需要让对应的奖品旋转到指针下方
+                // 每个扇形的起始角度
+                const prizeStartAngle = selectedIndex * sectionAngle;
+                // 指针指向12点钟，奖品需要旋转到指针下方，所以是负角度
+                const targetAngle = -prizeStartAngle;
+                
+                // 计算旋转角度，让指针指向正确的奖品
+                const spins = 5 + Math.random() * 5; // 5-10圈
+                const totalRotation = spins * 360 + targetAngle;
+                
+                wheel.style.transform = `rotate(${totalRotation}deg)`;
+                
+                // 显示结果
+                setTimeout(() => {
+                    this.showPrizeResult(selectedPrize);
+                }, 3000);
+            }
+
+            selectRandomPrize() {
+                const random = Math.random();
+                let cumulativeProbability = 0;
+                
+                for (const prize of this.prizes) {
+                    cumulativeProbability += prize.probability;
+                    if (random <= cumulativeProbability) {
+                        return prize;
+                    }
+                }
+                
+                // 如果没有匹配到，返回最后一个奖品
+                return this.prizes[this.prizes.length - 1];
+            }
+
+            showPrizeResult(prize) {
+                const prizeResult = document.getElementById('prize-result');
+                const prizeText = document.getElementById('prize-text');
+                const spinButton = document.getElementById('spin-button');
+                
+                prizeText.textContent = `🎉 恭喜获得：${prize.icon} ${prize.name} 🎉`;
+                prizeResult.style.display = 'block';
+                prizeResult.style.backgroundColor = '#27ae60';
+                
+                spinButton.textContent = '🎯 再次抽奖';
+                spinButton.disabled = false;
+                
+                // 保存奖品记录
+                this.savePrizeRecord(prize);
+            }
+
+            savePrizeRecord(prize) {
+                let records = JSON.parse(localStorage.getItem('prize-records') || '[]');
+                records.push({
+                    prize: prize.name,
+                    timestamp: new Date().toISOString()
+                });
+                localStorage.setItem('prize-records', JSON.stringify(records));
+            }
+
             setupEventListeners() {
                 this.canvas.addEventListener('click', (event) => {
                     if (this.aiMode && this.currentPlayer === this.aiPlayer) {
@@ -1108,9 +1484,9 @@
         document.addEventListener('DOMContentLoaded', () => {
             console.log('页面加载完成，开始初始化游戏...');
             try {
-                const game = new SimpleGomoku();
-                console.log('五子棋游戏已加载');
-                console.log('功能：双人对战、AI对战、难度选择');
+                const game = new GomokuWithLottery();
+                console.log('五子棋抽奖游戏已加载');
+                console.log('功能：双人对战、AI对战、难度选择、获胜抽奖');
             } catch (error) {
                 console.error('游戏初始化失败:', error);
                 alert('游戏初始化失败: ' + error.message);
