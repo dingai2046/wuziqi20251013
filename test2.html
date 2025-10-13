@@ -60,6 +60,33 @@
             box-shadow: 0 6px 20px rgba(39, 174, 96, 0.6);
         }
 
+        .btn-sound {
+            background: linear-gradient(45deg, #9b59b6, #8e44ad);
+            color: white;
+            box-shadow: 0 4px 15px rgba(155, 89, 182, 0.4);
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .btn-sound:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(155, 89, 182, 0.6);
+        }
+
+        .btn-sound.muted {
+            background: linear-gradient(45deg, #7f8c8d, #95a5a6);
+            opacity: 0.7;
+        }
+
+        .btn-sound.muted:hover {
+            box-shadow: 0 4px 15px rgba(127, 140, 141, 0.4);
+        }
+
         .difficulty-description {
             text-align: center;
             margin-top: 10px;
@@ -597,6 +624,7 @@
             <button class="btn btn-secondary" id="undo-btn">悔棋</button>
             <button class="btn btn-info" id="hint-btn">提示</button>
             <button class="btn btn-ai" id="ai-mode-btn">🤖 人机对战</button>
+            <button class="btn btn-sound" id="sound-btn">🔊 音效</button>
         </div>
 
         <!-- AI难度选择区域 -->
@@ -681,6 +709,9 @@
                 this.boardSize = 15;
                 this.cellSize = 40;
                 this.board = [];
+                
+                // 初始化音频上下文
+                this.initAudio();
                 this.currentPlayer = 1;
                 this.gameOver = false;
                 this.moveHistory = [];
@@ -714,6 +745,80 @@
                 this.updateDisplay();
                 this.setupLottery();
                 console.log('游戏初始化完成');
+            }
+
+            initAudio() {
+                // 创建音频上下文
+                try {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    
+                    // 从本地存储加载音效设置
+                    const savedSoundSetting = localStorage.getItem('gomoku-sound-enabled');
+                    this.soundEnabled = savedSoundSetting !== null ? JSON.parse(savedSoundSetting) : true;
+                    
+                    // 更新音效按钮状态
+                    const soundBtn = document.getElementById('sound-btn');
+                    if (soundBtn) {
+                        if (this.soundEnabled) {
+                            soundBtn.textContent = '🔊 音效';
+                            soundBtn.classList.remove('muted');
+                        } else {
+                            soundBtn.textContent = '🔇 静音';
+                            soundBtn.classList.add('muted');
+                        }
+                    }
+                    
+                    console.log('音频系统初始化成功，音效状态:', this.soundEnabled);
+                } catch (error) {
+                    console.warn('音频系统初始化失败:', error);
+                    this.soundEnabled = false;
+                }
+            }
+
+            // 播放落子音效
+            playMoveSound(player) {
+                if (!this.soundEnabled || !this.audioContext) {
+                    return;
+                }
+
+                // 恢复音频上下文（用户交互后）
+                if (this.audioContext.state === 'suspended') {
+                    this.audioContext.resume();
+                }
+
+                if (player === 1) {
+                    // 黑子 - 沉闷的低音
+                    this.playTone(150, 0.3, 'sine', 0.1); // 低频，沉闷
+                    this.playTone(200, 0.2, 'sine', 0.05); // 叠加音
+                } else {
+                    // 白子 - 明亮的清音
+                    this.playTone(800, 0.2, 'sine', 0.08); // 高频，明亮
+                    this.playTone(1200, 0.15, 'sine', 0.04); // 叠加音
+                }
+            }
+
+            // 播放音调
+            playTone(frequency, duration, type = 'sine', volume = 0.1) {
+                if (!this.soundEnabled || !this.audioContext) {
+                    return;
+                }
+
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+
+                oscillator.frequency.value = frequency;
+                oscillator.type = type;
+
+                // 设置音量包络（淡入淡出）
+                gainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(volume, this.audioContext.currentTime + 0.01);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + duration);
+
+                oscillator.start(this.audioContext.currentTime);
+                oscillator.stop(this.audioContext.currentTime + duration);
             }
 
             loadPieceImages() {
@@ -1103,6 +1208,9 @@
                 
                 console.log(`玩家 ${this.currentPlayer} 下棋到 (${row}, ${col})`);
                 
+                // 播放落子音效
+                this.playMoveSound(this.currentPlayer);
+                
                 this.moveHistory.push({ row, col, player: this.currentPlayer });
                 this.board[row][col] = this.currentPlayer;
                 
@@ -1185,6 +1293,9 @@
                 const move = this.getBestMove();
                 if (move) {
                     console.log(`AI下棋到 (${move.row}, ${move.col})`);
+                    
+                    // 播放AI落子音效
+                    this.playMoveSound(this.currentPlayer);
                     
                     this.moveHistory.push({ row: move.row, col: move.col, player: this.currentPlayer });
                     this.board[move.row][move.col] = this.currentPlayer;
@@ -1348,6 +1459,25 @@
                 setTimeout(() => {
                     messageDiv.remove();
                 }, 3000);
+            }
+
+            // 切换音效开关
+            toggleSound() {
+                this.soundEnabled = !this.soundEnabled;
+                const soundBtn = document.getElementById('sound-btn');
+                
+                if (this.soundEnabled) {
+                    soundBtn.textContent = '🔊 音效';
+                    soundBtn.classList.remove('muted');
+                    this.showMessage('音效已开启');
+                } else {
+                    soundBtn.textContent = '🔇 静音';
+                    soundBtn.classList.add('muted');
+                    this.showMessage('音效已关闭');
+                }
+                
+                // 保存音效设置到本地存储
+                localStorage.setItem('gomoku-sound-enabled', this.soundEnabled);
             }
 
             undo() {
@@ -1690,6 +1820,11 @@
 
                 document.getElementById('ai-mode-btn').addEventListener('click', () => {
                     this.toggleAIMode();
+                });
+
+                // 音效开关按钮
+                document.getElementById('sound-btn').addEventListener('click', () => {
+                    this.toggleSound();
                 });
 
                 document.querySelectorAll('.btn-difficulty').forEach(btn => {
