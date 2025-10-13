@@ -826,7 +826,19 @@
                 }
                 
                 this.resizeCanvas();
-                window.addEventListener('resize', () => this.resizeCanvas());
+                window.addEventListener('resize', () => {
+                    // 延迟执行，确保DOM完全更新
+                    setTimeout(() => {
+                        this.resizeCanvas();
+                    }, 100);
+                });
+                
+                // 监听方向变化（手机横竖屏切换）
+                window.addEventListener('orientationchange', () => {
+                    setTimeout(() => {
+                        this.resizeCanvas();
+                    }, 500);
+                });
                 
                 this.ctx.imageSmoothingEnabled = true;
                 this.ctx.imageSmoothingQuality = 'high';
@@ -845,27 +857,46 @@
                 const maxSize = Math.min(availableWidth, window.innerWidth * 0.85, window.innerHeight * 0.5);
                 const canvasSize = Math.floor(maxSize / this.boardSize) * this.boardSize;
                 
-                this.cellSize = canvasSize / this.boardSize;
+                // 确保最小尺寸
+                const minSize = this.boardSize * 20; // 每个格子至少20px
+                const finalSize = Math.max(canvasSize, minSize);
                 
-                // 对于高分辨率屏幕，保持1:1的像素比以避免坐标问题
-                const devicePixelRatio = 1; // 强制使用1:1像素比
+                this.cellSize = finalSize / this.boardSize;
                 
-                this.canvas.width = canvasSize;
-                this.canvas.height = canvasSize;
+                // 设置canvas的实际像素尺寸
+                this.canvas.width = finalSize;
+                this.canvas.height = finalSize;
                 
-                this.canvas.style.width = canvasSize + 'px';
-                this.canvas.style.height = canvasSize + 'px';
+                // 设置canvas的显示尺寸
+                this.canvas.style.width = finalSize + 'px';
+                this.canvas.style.height = finalSize + 'px';
                 
-                // 不进行缩放，直接使用原始尺寸
-                this.ctx.scale(1, 1);
+                // 重置变换矩阵
+                this.ctx.setTransform(1, 0, 0, 1, 0, 0);
                 
-                console.log(`Canvas尺寸: ${canvasSize}x${canvasSize} (容器宽度: ${containerWidth}, 可用宽度: ${availableWidth}, 格子大小: ${this.cellSize.toFixed(2)})`);
+                console.log(`Canvas尺寸: ${finalSize}x${finalSize} (容器宽度: ${containerWidth}, 可用宽度: ${availableWidth}, 格子大小: ${this.cellSize.toFixed(2)})`);
+                
+                // 立即重绘棋盘
+                this.drawBoard();
             }
 
             drawBoard() {
                 const ctx = this.ctx;
+                if (!ctx) {
+                    console.error('Canvas上下文未初始化');
+                    return;
+                }
+                
                 const canvasSize = this.boardSize * this.cellSize;
-                ctx.clearRect(0, 0, canvasSize, canvasSize);
+                
+                // 确保canvas有正确的尺寸
+                if (canvasSize <= 0) {
+                    console.error('Canvas尺寸无效:', canvasSize);
+                    return;
+                }
+                
+                // 清除整个canvas
+                ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
                 
                 ctx.fillStyle = '#1a1a1a';
                 ctx.fillRect(0, 0, canvasSize, canvasSize);
@@ -1651,7 +1682,7 @@
                 const distance = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
                 
                 // 如果点击位置距离格子中心太远，不执行落子
-                const maxDistance = this.cellSize * 0.4; // 格子大小的40%作为容差
+                const maxDistance = this.cellSize * 0.6; // 格子大小的60%作为容差，更宽松
                 
                 // 简化的调试信息
                 console.log(`点击: (${row}, ${col}), 距离: ${distance.toFixed(1)}/${maxDistance.toFixed(1)}, 有效: ${distance <= maxDistance}`);
