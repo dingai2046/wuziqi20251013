@@ -840,8 +840,16 @@
                     }, 500);
                 });
                 
+                // 优化绘制质量设置
                 this.ctx.imageSmoothingEnabled = true;
                 this.ctx.imageSmoothingQuality = 'high';
+                
+                // 设置文本渲染质量
+                this.ctx.textRenderingOptimization = 'optimizeQuality';
+                
+                // 设置抗锯齿
+                this.ctx.lineCap = 'round';
+                this.ctx.lineJoin = 'round';
                 
                 this.drawBoard();
             }
@@ -863,16 +871,22 @@
                 
                 this.cellSize = finalSize / this.boardSize;
                 
-                // 设置canvas的实际像素尺寸
-                this.canvas.width = finalSize;
-                this.canvas.height = finalSize;
+                // 获取设备像素比以提升显示精度
+                const devicePixelRatio = window.devicePixelRatio || 1;
+                
+                // 设置canvas的实际像素尺寸（高分辨率）
+                const scaledSize = finalSize * devicePixelRatio;
+                this.canvas.width = scaledSize;
+                this.canvas.height = scaledSize;
                 
                 // 设置canvas的显示尺寸
                 this.canvas.style.width = finalSize + 'px';
                 this.canvas.style.height = finalSize + 'px';
                 
-                // 重置变换矩阵
-                this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+                // 缩放上下文以匹配设备像素比
+                this.ctx.scale(devicePixelRatio, devicePixelRatio);
+                
+                console.log(`设备像素比: ${devicePixelRatio}, 实际尺寸: ${scaledSize}x${scaledSize}, 显示尺寸: ${finalSize}x${finalSize}`);
                 
                 console.log(`Canvas尺寸: ${finalSize}x${finalSize} (容器宽度: ${containerWidth}, 可用宽度: ${availableWidth}, 格子大小: ${this.cellSize.toFixed(2)})`);
                 
@@ -902,7 +916,7 @@
                 ctx.fillRect(0, 0, canvasSize, canvasSize);
                 
                 ctx.strokeStyle = '#666';
-                ctx.lineWidth = 1.5;
+                ctx.lineWidth = 1.0; // 更细的线条，在高分辨率下更清晰
                 
                 for (let i = 0; i <= this.boardSize; i++) {
                     const pos = i * this.cellSize;
@@ -940,7 +954,7 @@
                 const ctx = this.ctx;
                 const x = col * this.cellSize;
                 const y = row * this.cellSize;
-                const radius = this.cellSize * 0.52;
+                const radius = this.cellSize * 0.48; // 稍微小一点，更精确
                 
                 if (player === 1) {
                     if (this.pieceImage) {
@@ -965,8 +979,8 @@
                         
                         ctx.restore();
                         
-                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-                        ctx.lineWidth = 1;
+                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+                        ctx.lineWidth = 0.5; // 更细的边框，高分辨率下更清晰
                         ctx.beginPath();
                         ctx.arc(x, y, radius, 0, 2 * Math.PI);
                         ctx.stroke();
@@ -1010,8 +1024,8 @@
                         
                         ctx.restore();
                         
-                        ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
-                        ctx.lineWidth = 1;
+                        ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
+                        ctx.lineWidth = 0.5; // 更细的边框，高分辨率下更清晰
                         ctx.beginPath();
                         ctx.arc(x, y, radius, 0, 2 * Math.PI);
                         ctx.stroke();
@@ -1682,7 +1696,7 @@
                 const distance = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
                 
                 // 如果点击位置距离格子中心太远，不执行落子
-                const maxDistance = this.cellSize * 0.6; // 格子大小的60%作为容差，更宽松
+                const maxDistance = this.cellSize * 0.8; // 格子大小的80%作为容差，非常宽松
                 
                 // 简化的调试信息
                 console.log(`点击: (${row}, ${col}), 距离: ${distance.toFixed(1)}/${maxDistance.toFixed(1)}, 有效: ${distance <= maxDistance}`);
