@@ -87,6 +87,43 @@
             box-shadow: 0 4px 15px rgba(127, 140, 141, 0.4);
         }
 
+        /* 音频激活提示样式 */
+        .audio-activation-hint {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .audio-activation-hint .hint-content {
+            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 300px;
+            margin: 20px;
+            border: 2px solid #9b59b6;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .audio-activation-hint h4 {
+            color: #9b59b6;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .audio-activation-hint p {
+            color: #bdc3c7;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
         .difficulty-description {
             text-align: center;
             margin-top: 10px;
@@ -678,6 +715,15 @@
         </footer>
     </div>
 
+    <!-- 音频激活提示 -->
+    <div class="audio-activation-hint" id="audio-hint" style="display: none;">
+        <div class="hint-content">
+            <h4>🎵 点击激活音效</h4>
+            <p>为了提供更好的游戏体验，请点击屏幕任意位置激活音效</p>
+            <button class="btn btn-primary" id="activate-audio-btn">激活音效</button>
+        </div>
+    </div>
+
     <!-- 大转盘抽奖弹窗 -->
     <div class="lottery-modal" id="lottery-modal">
         <div class="lottery-container">
@@ -745,39 +791,78 @@
                 this.updateDisplay();
                 this.setupLottery();
                 console.log('游戏初始化完成');
+                
+                // 检查是否为移动设备，如果是则显示音频激活提示
+                this.checkAudioActivation();
             }
 
             initAudio() {
-                // 创建音频上下文
+                // 从本地存储加载音效设置
+                const savedSoundSetting = localStorage.getItem('gomoku-sound-enabled');
+                this.soundEnabled = savedSoundSetting !== null ? JSON.parse(savedSoundSetting) : true;
+                
+                // 更新音效按钮状态
+                const soundBtn = document.getElementById('sound-btn');
+                if (soundBtn) {
+                    if (this.soundEnabled) {
+                        soundBtn.textContent = '🔊 音效';
+                        soundBtn.classList.remove('muted');
+                    } else {
+                        soundBtn.textContent = '🔇 静音';
+                        soundBtn.classList.add('muted');
+                    }
+                }
+                
+                this.audioContext = null;
+                this.audioInitialized = false;
+                
+                console.log('音频系统准备就绪，等待用户交互激活');
+            }
+
+            // 检查音频激活状态
+            checkAudioActivation() {
+                // 检测是否为移动设备
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+                
+                if (isMobile && this.soundEnabled) {
+                    // 延迟显示提示，让页面完全加载
+                    setTimeout(() => {
+                        document.getElementById('audio-hint').style.display = 'flex';
+                    }, 1000);
+                }
+            }
+
+            // 激活音频上下文（用户交互后）
+            activateAudio() {
+                if (this.audioInitialized) {
+                    return;
+                }
+                
                 try {
                     this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    this.audioInitialized = true;
+                    console.log('音频系统已激活，音效可用');
                     
-                    // 从本地存储加载音效设置
-                    const savedSoundSetting = localStorage.getItem('gomoku-sound-enabled');
-                    this.soundEnabled = savedSoundSetting !== null ? JSON.parse(savedSoundSetting) : true;
-                    
-                    // 更新音效按钮状态
-                    const soundBtn = document.getElementById('sound-btn');
-                    if (soundBtn) {
-                        if (this.soundEnabled) {
-                            soundBtn.textContent = '🔊 音效';
-                            soundBtn.classList.remove('muted');
-                        } else {
-                            soundBtn.textContent = '🔇 静音';
-                            soundBtn.classList.add('muted');
-                        }
-                    }
-                    
-                    console.log('音频系统初始化成功，音效状态:', this.soundEnabled);
+                    // 播放一个测试音效确认激活
+                    this.playTone(440, 0.1, 'sine', 0.05);
                 } catch (error) {
-                    console.warn('音频系统初始化失败:', error);
+                    console.warn('音频系统激活失败:', error);
                     this.soundEnabled = false;
                 }
             }
 
             // 播放落子音效
             playMoveSound(player) {
-                if (!this.soundEnabled || !this.audioContext) {
+                if (!this.soundEnabled) {
+                    return;
+                }
+
+                // 如果音频未初始化，先激活
+                if (!this.audioInitialized) {
+                    this.activateAudio();
+                }
+
+                if (!this.audioContext) {
                     return;
                 }
 
@@ -1467,6 +1552,8 @@
                 const soundBtn = document.getElementById('sound-btn');
                 
                 if (this.soundEnabled) {
+                    // 激活音频上下文
+                    this.activateAudio();
                     soundBtn.textContent = '🔊 音效';
                     soundBtn.classList.remove('muted');
                     this.showMessage('音效已开启');
@@ -1826,6 +1913,21 @@
                 document.getElementById('sound-btn').addEventListener('click', () => {
                     this.toggleSound();
                 });
+
+                // 音频激活按钮
+                document.getElementById('activate-audio-btn').addEventListener('click', () => {
+                    this.activateAudio();
+                    document.getElementById('audio-hint').style.display = 'none';
+                    this.showMessage('音效已激活！');
+                });
+
+                // 点击屏幕任意位置激活音频
+                document.addEventListener('click', () => {
+                    if (!this.audioInitialized && this.soundEnabled) {
+                        this.activateAudio();
+                        document.getElementById('audio-hint').style.display = 'none';
+                    }
+                }, { once: false });
 
                 document.querySelectorAll('.btn-difficulty').forEach(btn => {
                     btn.addEventListener('click', () => {
