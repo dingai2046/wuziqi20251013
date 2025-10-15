@@ -1342,8 +1342,8 @@
                 const starPoints = [[3, 3], [3, 11], [7, 7], [11, 3], [11, 11]];
                 ctx.fillStyle = '#666';
                 starPoints.forEach(([row, col]) => {
-                    const x = col * this.cellSize;
-                    const y = row * this.cellSize;
+                    const x = col * this.cellSize + this.cellSize / 2; // 格子中心
+                    const y = row * this.cellSize + this.cellSize / 2; // 格子中心
                     ctx.beginPath();
                     ctx.arc(x, y, 5, 0, 2 * Math.PI);
                     ctx.fill();
@@ -2139,15 +2139,40 @@
                 const x = event.clientX - rect.left;
                 const y = event.clientY - rect.top;
                 
-                // 精确的格子位置计算 - 使用Math.round让点击更准确
-                const col = Math.round(x / this.cellSize);
-                const row = Math.round(y / this.cellSize);
+                // 快速计算最近的格子 - 先估算，再精确计算
+                const estimatedCol = Math.round(x / this.cellSize);
+                const estimatedRow = Math.round(y / this.cellSize);
                 
-                console.log(`点击位置: (${x.toFixed(1)}, ${y.toFixed(1)}), 格子: (${row}, ${col}), 格子大小: ${this.cellSize.toFixed(1)}`);
+                // 检查估算格子周围的3x3区域，找到真正最近的格子
+                let bestRow = estimatedRow;
+                let bestCol = estimatedCol;
+                let minDistance = Infinity;
                 
-                // 检查边界
-                if (row >= 0 && row < this.boardSize && col >= 0 && col < this.boardSize) {
-                    if (this.makeMove(row, col)) {
+                for (let row = Math.max(0, estimatedRow - 1); row <= Math.min(this.boardSize - 1, estimatedRow + 1); row++) {
+                    for (let col = Math.max(0, estimatedCol - 1); col <= Math.min(this.boardSize - 1, estimatedCol + 1); col++) {
+                        // 计算格子中心位置
+                        const cellCenterX = col * this.cellSize + this.cellSize / 2;
+                        const cellCenterY = row * this.cellSize + this.cellSize / 2;
+                        
+                        // 计算距离
+                        const distance = Math.sqrt(
+                            Math.pow(x - cellCenterX, 2) + Math.pow(y - cellCenterY, 2)
+                        );
+                        
+                        // 更新最近的格子
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            bestRow = row;
+                            bestCol = col;
+                        }
+                    }
+                }
+                
+                console.log(`点击位置: (${x.toFixed(1)}, ${y.toFixed(1)}), 最近格子: (${bestRow}, ${bestCol}), 距离: ${minDistance.toFixed(1)}, 格子大小: ${this.cellSize.toFixed(1)}`);
+                
+                // 检查边界并落子
+                if (bestRow >= 0 && bestRow < this.boardSize && bestCol >= 0 && bestCol < this.boardSize) {
+                    if (this.makeMove(bestRow, bestCol)) {
                         this.drawBoard();
                     }
                 }
