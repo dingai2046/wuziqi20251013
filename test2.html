@@ -2140,8 +2140,8 @@
                 const y = event.clientY - rect.top;
                 
                 // 使用更精确的格子位置计算
-                const col = Math.floor(x / this.cellSize + 0.5);
-                const row = Math.floor(y / this.cellSize + 0.5);
+                const col = Math.round(x / this.cellSize);
+                const row = Math.round(y / this.cellSize);
                 
                 // 计算点击位置相对于格子中心的偏移
                 const cellCenterX = col * this.cellSize + this.cellSize / 2;
@@ -2150,17 +2150,17 @@
                 const offsetY = y - cellCenterY;
                 const distance = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
                 
-                // 通用容错率设置
+                // 通用容错率设置 - 提高容错率以改善点击精度
                 const isMobile = window.innerWidth <= 768;
                 const maxDistance = isMobile ? 
-                    this.cellSize * 0.85 : // 手机：85%容错率，适合触摸操作
-                    this.cellSize * 0.8;   // 桌面：80%容错率
+                    this.cellSize * 0.9 : // 手机：90%容错率，更容易点击
+                    this.cellSize * 0.85; // 桌面：85%容错率
                 
                 // 详细的调试信息
                 console.log(`手机模式: ${isMobile}, 格子大小: ${this.cellSize.toFixed(1)}, 点击: (${row}, ${col}), 距离: ${distance.toFixed(1)}/${maxDistance.toFixed(1)}, 有效: ${distance <= maxDistance}`);
                 
-                // 移除调试反馈，直接处理落子
-                // this.showClickFeedback(x, y, row, col, distance <= maxDistance);
+                // 显示点击反馈，帮助调试精度问题
+                this.showClickFeedback(x, y, row, col, distance <= maxDistance);
                 
                 if (row >= 0 && row < this.boardSize && col >= 0 && col < this.boardSize && distance <= maxDistance) {
                     if (this.makeMove(row, col)) {
@@ -2178,7 +2178,7 @@
                 ctx.strokeStyle = isValid ? 'green' : 'red';
                 ctx.lineWidth = 3;
                 ctx.beginPath();
-                ctx.arc(x, y, 12, 0, 2 * Math.PI);
+                ctx.arc(x, y, 15, 0, 2 * Math.PI);
                 ctx.stroke();
                 
                 // 如果点击有效，在格子中心也绘制一个圆圈
@@ -2189,16 +2189,16 @@
                     ctx.strokeStyle = 'blue';
                     ctx.lineWidth = 2;
                     ctx.beginPath();
-                    ctx.arc(cellCenterX, cellCenterY, 8, 0, 2 * Math.PI);
+                    ctx.arc(cellCenterX, cellCenterY, 10, 0, 2 * Math.PI);
                     ctx.stroke();
                 }
                 
                 ctx.restore();
                 
-                // 0.8秒后清除反馈
+                // 1秒后重新绘制棋盘，清除反馈圆圈
                 setTimeout(() => {
                     this.drawBoard();
-                }, 800);
+                }, 1000);
             }
         }
 
