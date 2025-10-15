@@ -551,9 +551,8 @@
             }
         }
 
-        /* iPhone 16 Pro 专用优化 (393×852) */
-        @media (min-width: 393px) and (max-width: 393px) and (min-height: 852px) and (max-height: 852px),
-               (min-width: 390px) and (max-width: 396px) and (min-height: 844px) and (max-height: 860px) {
+        /* 通用移动端优化 - 适配所有手机尺寸 */
+        @media (max-width: 768px) {
             /* 容器优化 */
             .container {
                 padding: 4px 6px;
@@ -588,7 +587,7 @@
                 font-size: 0.85rem;
             }
             
-            /* 棋盘容器优化 - iPhone 16 Pro专用 */
+            /* 棋盘容器优化 - 通用移动端 */
             .game-board-container {
                 padding: 4px;
                 margin: 3px auto;
@@ -722,179 +721,6 @@
                 font-size: 0.85rem;
                 margin-bottom: 15px;
                 line-height: 1.3;
-            }
-        }
-
-        /* iPhone 12 Pro Max 专用优化 (428×926) */
-        @media (min-width: 414px) and (max-width: 428px) and (min-height: 896px) and (max-height: 926px) {
-            /* 容器优化 */
-            .container {
-                padding: 5px 8px;
-                max-width: 100%;
-            }
-            
-            /* 标题区域优化 */
-            .title-image-container {
-                padding: 5px 0;
-                margin: -3px 0;
-            }
-            
-            .title-image {
-                max-width: 90%;
-                max-height: 75px;
-            }
-            
-            /* 游戏信息区域 */
-            .game-info {
-                padding: 8px 12px;
-                margin: 8px auto;
-                border-radius: 10px;
-                flex-direction: column;
-                gap: 8px;
-            }
-            
-            .player-info {
-                font-size: 1.0rem;
-            }
-            
-            .game-status {
-                font-size: 0.9rem;
-            }
-            
-            /* 棋盘容器优化 */
-            .game-board-container {
-                padding: 8px;
-                margin: 5px auto;
-                width: 100%;
-                max-width: none;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
-            
-            #game-board {
-                display: block;
-                margin: 0 auto;
-                max-width: 100%;
-                max-height: 100%;
-                width: auto !important;
-                height: auto !important;
-            }
-            
-            /* 游戏控制按钮 */
-            .game-controls {
-                padding: 10px 5px;
-                gap: 8px;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-            
-            .btn {
-                padding: 12px 16px;
-                font-size: 0.9rem;
-                margin: 3px;
-                min-width: 70px;
-            }
-            
-            /* AI难度选择 */
-            .difficulty-section {
-                padding: 12px 8px;
-                margin: 8px auto;
-                border-radius: 12px;
-            }
-            
-            .difficulty-title {
-                font-size: 1.1rem;
-                margin-bottom: 10px;
-            }
-            
-            .difficulty-buttons {
-                gap: 8px;
-                justify-content: center;
-            }
-            
-            .btn-difficulty {
-                padding: 10px 16px;
-                font-size: 0.9rem;
-                margin: 3px;
-            }
-            
-            .difficulty-description {
-                font-size: 0.8rem;
-                margin-top: 8px;
-                line-height: 1.3;
-            }
-            
-            /* 统计区域 */
-            .stats-section {
-                padding: 10px 8px;
-                margin: 8px auto;
-                border-radius: 12px;
-            }
-            
-            .stats-title {
-                font-size: 1.0rem;
-                margin-bottom: 8px;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr;
-                gap: 6px;
-            }
-            
-            .stat-item {
-                padding: 6px 10px;
-                font-size: 0.85rem;
-            }
-            
-            /* 抽奖转盘优化 */
-            .lottery-container {
-                padding: 15px 12px;
-                width: 95%;
-                max-width: 380px;
-            }
-            
-            .lottery-title {
-                font-size: 1.3rem;
-                margin-bottom: 15px;
-            }
-            
-            .wheel-container {
-                width: 240px;
-                height: 240px;
-            }
-            
-            .wheel-pointer {
-                width: 25px;
-                height: 25px;
-            }
-            
-            .prize-item {
-                font-size: 0.75rem;
-            }
-            
-            .spin-button {
-                padding: 12px 24px;
-                font-size: 1.0rem;
-                margin-top: 15px;
-            }
-            
-            /* 音频激活提示优化 */
-            .audio-activation-hint .hint-content {
-                padding: 25px;
-                max-width: 320px;
-                margin: 15px;
-            }
-            
-            .audio-activation-hint h4 {
-                font-size: 1.1rem;
-                margin-bottom: 12px;
-            }
-            
-            .audio-activation-hint p {
-                font-size: 0.9rem;
-                margin-bottom: 18px;
-                line-height: 1.4;
             }
         }
 
@@ -1170,25 +996,12 @@
             checkAudioActivation() {
                 // 检测是否为移动设备
                 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
-                const isiPhone16Pro = window.innerWidth >= 390 && window.innerWidth <= 396 && 
-                                     window.innerHeight >= 844 && window.innerHeight <= 860;
-                const isiPhone12ProMax = window.innerWidth >= 414 && window.innerWidth <= 428 && 
-                                        window.innerHeight >= 896 && window.innerHeight <= 926;
                 
                 if (isMobile && this.soundEnabled) {
-                    // 不同iPhone型号的延迟时间
-                    let delay;
-                    if (isiPhone16Pro) {
-                        delay = 900; // iPhone 16 Pro：900ms
-                    } else if (isiPhone12ProMax) {
-                        delay = 800; // iPhone 12 Pro Max：800ms
-                    } else {
-                        delay = 1000; // 其他手机：1000ms
-                    }
-                    
+                    // 通用延迟时间
                     setTimeout(() => {
                         document.getElementById('audio-hint').style.display = 'flex';
-                    }, delay);
+                    }, 1000);
                 }
             }
 
@@ -1435,44 +1248,23 @@
                 let availableWidth, maxSize, canvasSize, finalSize;
                 
                 if (isMobile) {
-                    // 检测是否为iPhone 16 Pro (包含小幅误差范围)
-                    const isiPhone16Pro = window.innerWidth >= 390 && window.innerWidth <= 396 && 
-                                         window.innerHeight >= 844 && window.innerHeight <= 860;
-                    // 检测是否为iPhone 12 Pro Max
-                    const isiPhone12ProMax = window.innerWidth >= 414 && window.innerWidth <= 428 && 
-                                            window.innerHeight >= 896 && window.innerHeight <= 926;
+                    // 通用手机模式：棋盘铺满屏幕宽度，并保持正方形
+                    const padding = 8; // 左右各4px边距，最小化边距
+                    availableWidth = window.innerWidth - padding; 
                     
-                    if (isiPhone16Pro) {
-                        // iPhone 16 Pro专用优化
-                        availableWidth = window.innerWidth - 12; // 左右各6px边距
-                        const maxHeight = window.innerHeight * 0.52; // 更保守的高度限制
-                        maxSize = Math.min(availableWidth, maxHeight);
-                        canvasSize = Math.floor(maxSize / this.boardSize) * this.boardSize;
-                        const minSize = this.boardSize * 21; // iPhone 16 Pro每个格子至少21px
-                        finalSize = Math.max(canvasSize, minSize);
-                        
-                        console.log(`iPhone 16 Pro模式 - 屏幕: ${window.innerWidth}x${window.innerHeight}, 可用: ${availableWidth}, 最大: ${maxSize}, 最终: ${finalSize}, 格子: ${(finalSize/this.boardSize).toFixed(1)}px`);
-                    } else if (isiPhone12ProMax) {
-                        // iPhone 12 Pro Max专用优化
-                        availableWidth = window.innerWidth - 16; // 左右各8px边距
-                        const maxHeight = window.innerHeight * 0.55; // 更保守的高度限制
-                        maxSize = Math.min(availableWidth, maxHeight);
-                        canvasSize = Math.floor(maxSize / this.boardSize) * this.boardSize;
-                        const minSize = this.boardSize * 22; // iPhone 12 Pro Max每个格子至少22px
-                        finalSize = Math.max(canvasSize, minSize);
-                        
-                        console.log(`iPhone 12 Pro Max模式 - 屏幕: ${window.innerWidth}x${window.innerHeight}, 可用: ${availableWidth}, 最大: ${maxSize}, 最终: ${finalSize}, 格子: ${(finalSize/this.boardSize).toFixed(1)}px`);
-                    } else {
-                        // 其他手机模式
-                        availableWidth = window.innerWidth - 20; // 左右各10px边距
-                        const maxHeight = window.innerHeight * 0.6; // 限制高度，为其他元素留空间
-                        maxSize = Math.min(availableWidth, maxHeight);
-                        canvasSize = Math.floor(maxSize / this.boardSize) * this.boardSize;
-                        const minSize = this.boardSize * 20; // 每个格子至少20px
-                        finalSize = Math.max(canvasSize, minSize);
-                        
-                        console.log(`手机模式 - 屏幕: ${window.innerWidth}x${window.innerHeight}, 可用: ${availableWidth}, 最大: ${maxSize}, 最终: ${finalSize}, 格子: ${(finalSize/this.boardSize).toFixed(1)}px`);
-                    }
+                    // 确保棋盘是正方形，并向下取整到棋盘大小的倍数，以确保格子对齐
+                    finalSize = Math.floor(availableWidth / this.boardSize) * this.boardSize;
+                    
+                    // 确保棋盘不会过小，设置一个最小尺寸
+                    const minSize = this.boardSize * 18; // 每个格子至少18px，适应小屏幕
+                    finalSize = Math.max(finalSize, minSize);
+
+                    // 限制棋盘高度，避免在某些设备上棋盘过长，覆盖其他重要元素
+                    // 棋盘高度不应超过屏幕高度的某个百分比，例如 65%
+                    const maxHeightLimit = window.innerHeight * 0.65; 
+                    finalSize = Math.min(finalSize, Math.floor(maxHeightLimit / this.boardSize) * this.boardSize);
+
+                    console.log(`通用手机模式 - 屏幕: ${window.innerWidth}x${window.innerHeight}, 可用宽度: ${availableWidth}, 最终棋盘尺寸: ${finalSize}, 格子: ${(finalSize/this.boardSize).toFixed(1)}px`);
                 } else {
                     // 桌面模式：保持原有逻辑
                     availableWidth = containerWidth - 40;
@@ -2358,23 +2150,11 @@
                 const offsetY = y - cellCenterY;
                 const distance = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
                 
-                // 检测设备类型，设置不同的容错率
+                // 通用容错率设置
                 const isMobile = window.innerWidth <= 768;
-                const isiPhone16Pro = window.innerWidth >= 390 && window.innerWidth <= 396 && 
-                                     window.innerHeight >= 844 && window.innerHeight <= 860;
-                const isiPhone12ProMax = window.innerWidth >= 414 && window.innerWidth <= 428 && 
-                                        window.innerHeight >= 896 && window.innerHeight <= 926;
-                
-                let maxDistance;
-                if (isiPhone16Pro) {
-                    maxDistance = this.cellSize * 0.86; // iPhone 16 Pro：86%容错率，平衡精度和易用性
-                } else if (isiPhone12ProMax) {
-                    maxDistance = this.cellSize * 0.88; // iPhone 12 Pro Max：88%容错率，充分利用大屏幕
-                } else if (isMobile) {
-                    maxDistance = this.cellSize * 0.85; // 其他手机：85%容错率
-                } else {
-                    maxDistance = this.cellSize * 0.8;  // 桌面：80%容错率
-                }
+                const maxDistance = isMobile ? 
+                    this.cellSize * 0.85 : // 手机：85%容错率，适合触摸操作
+                    this.cellSize * 0.8;   // 桌面：80%容错率
                 
                 // 详细的调试信息
                 console.log(`手机模式: ${isMobile}, 格子大小: ${this.cellSize.toFixed(1)}, 点击: (${row}, ${col}), 距离: ${distance.toFixed(1)}/${maxDistance.toFixed(1)}, 有效: ${distance <= maxDistance}`);
