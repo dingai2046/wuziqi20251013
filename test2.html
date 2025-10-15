@@ -1360,8 +1360,8 @@
 
             drawPiece(row, col, player) {
                 const ctx = this.ctx;
-                const x = col * this.cellSize;
-                const y = row * this.cellSize;
+                const x = col * this.cellSize + this.cellSize / 2; // 格子中心
+                const y = row * this.cellSize + this.cellSize / 2; // 格子中心
                 const radius = this.cellSize * 0.48; // 稍微小一点，更精确
                 
                 if (player === 1) {
@@ -2139,13 +2139,13 @@
                 const x = event.clientX - rect.left;
                 const y = event.clientY - rect.top;
                 
-                // 简单的格子位置计算 - 直接使用Math.floor
-                const col = Math.floor(x / this.cellSize);
-                const row = Math.floor(y / this.cellSize);
+                // 精确的格子位置计算 - 使用Math.round让点击更准确
+                const col = Math.round(x / this.cellSize);
+                const row = Math.round(y / this.cellSize);
                 
                 console.log(`点击位置: (${x.toFixed(1)}, ${y.toFixed(1)}), 格子: (${row}, ${col}), 格子大小: ${this.cellSize.toFixed(1)}`);
                 
-                // 直接检查边界，不做复杂的距离计算
+                // 检查边界
                 if (row >= 0 && row < this.boardSize && col >= 0 && col < this.boardSize) {
                     if (this.makeMove(row, col)) {
                         this.drawBoard();
